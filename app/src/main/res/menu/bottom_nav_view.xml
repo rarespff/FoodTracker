@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_item_fragment_one"
+        android:icon="@drawable/home"
+        android:actionLayout="@layout/home_fragment"
+        android:title="Journal" />
+
+    <item
+        android:id="@+id/menu_item_fragment_two"
+        android:icon="@drawable/tracker"
+        android:actionLayout="@layout/explore_fragment"
+        android:title="Explore" />
+
+    <item
+        android:id="@+id/menu_item_fragment_three"
+        android:icon="@drawable/profile"
+        android:actionLayout="@layout/profile_fragment"
+        android:title="Profile" />
+</menu>
