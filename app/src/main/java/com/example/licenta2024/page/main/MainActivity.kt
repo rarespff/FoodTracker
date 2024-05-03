@@ -5,7 +5,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.licenta2024.R
-import com.example.licenta2024.data.FoodItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,6 +18,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val viewPager: ViewPager2 = findViewById(R.id.viewPager)
+        viewPager.isUserInputEnabled = false
         val adapter = ViewPagerAdapter(this)
         viewPager.adapter = adapter
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
@@ -36,25 +36,8 @@ class MainActivity : AppCompatActivity() {
                 bottomNavigationView.menu.getItem(position).isChecked = true
             }
         })
-        viewModel.searchFood("chicken with rice")
-        viewModel.foodItemsLiveData.observe(this){ foodItemsList->
-            printFoodItems(foodItemsList)
-        }
+        viewModel.recipeListLiveData.observe(this) {}
 
-    }
 
-    private fun printFoodItems(foodItems: List<FoodItem>) {
-        // Print the list of FoodItem objects in a formatted way
-        for (foodItem in foodItems) {
-            println("Description: ${foodItem.description}")
-            println("FDC ID: ${foodItem.fdcId}")
-            println("Calories: ${foodItem.calories}")
-            println("Protein: ${foodItem.protein}")
-            println("Fat: ${foodItem.fat}")
-            println("Carbohydrates: ${foodItem.carbohydrates}")
-            println("Brand Name: ${foodItem.brandName}")
-            println("Package Weight: ${foodItem.packageWeight}")
-            println("-----------------------------------")
-        }
     }
 }

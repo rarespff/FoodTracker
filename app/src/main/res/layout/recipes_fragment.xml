@@ -3,29 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="70dp"
-    android:background="@color/dark_gray">
+    android:background="@color/dark_gray"
+    android:paddingBottom="70dp">
 
-    <EditText
+    <androidx.appcompat.widget.SearchView
         android:id="@+id/search_view"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_margin="20dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/radius_bk"
-        android:drawableStart="@drawable/search"
-        android:drawablePadding="10dp"
-        android:hint="Cauta reteta dupa nume"
-        android:paddingStart="50dp"
         android:textColor="@color/white"
-        android:textColorHint="@color/dark_gray"
+        app:closeIcon="@drawable/close"
+        app:iconifiedByDefault="false"
+        android:focusable="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:queryHint="Search recipes..."
+        app:searchHintIcon="@null"
+        app:searchIcon="@drawable/search" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recipes_rv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:id="@+id/recipes_rv"
+        android:layout_marginTop="10dp"
         android:paddingHorizontal="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

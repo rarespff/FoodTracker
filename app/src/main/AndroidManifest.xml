@@ -7,6 +7,7 @@
 
     <application
         android:name=".MyApp"
+        tools:remove="android:appComponentFactory"
         android:allowBackup="true"
         android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -27,6 +28,12 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".page.recipe.DetailedRecipeActivity"
+            android:exported="true">
+            <!-- Add an intent filter to make it the default activity -->
         </activity>
     </application>
 </manifest>

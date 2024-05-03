@@ -1,79 +1,55 @@
 package com.example.licenta2024.page.main
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.licenta2024.data.FoodItem
-import com.example.licenta2024.data.FoodRepositoryImpl
+import com.example.licenta2024.data.Recipe
+import com.example.licenta2024.data.RecipeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONObject
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val foodRepository: FoodRepositoryImpl
+    private val recipeRepository: RecipeRepository
 ) : ViewModel() {
 
-    val foodItemsLiveData = MutableLiveData<List<FoodItem>>()
-    fun searchFood(query: String) {
+    val recipeListLiveData = MutableLiveData<List<Recipe>?>()
+
+    init {
+        getRandomRecipes()
+    }
+
+    private fun getRandomRecipes() {
         viewModelScope.launch {
-            val result = foodRepository.searchFood(query)
-            foodItemsLiveData.value = parseFoodItems(result)
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    recipeRepository.getRandomRecipeList()
+                }
+                recipeListLiveData.postValue(response)
+                Log.e("element", response.toString())
+            } catch (e: Exception) {
+                // Handle exceptions, if any
+                Log.e("getDetail", "Error fetching details: ${e.message}")
+            }
         }
     }
 
-    private fun parseFoodItems(response: String): List<FoodItem> {
-        val foodItems = mutableListOf<FoodItem>()
-
-        // Parse the JSON string
-        val jsonObject = JSONObject(response)
-        val foodsArray = jsonObject.getJSONArray("foods")
-
-        // Iterate through each food item in the array
-        for (i in 0 until foodsArray.length()) {
-            val foodObject = foodsArray.getJSONObject(i)
-
-            // Extract relevant fields
-            val description = foodObject.getString("description")
-            val fdcId = foodObject.getString("fdcId")
-            val brandName = foodObject.optString("brandName", "")
-            val packageWeight = foodObject.optString("packageWeight", "")
-
-            // Extract food nutrients
-            val foodNutrientsArray = foodObject.getJSONArray("foodNutrients")
-            var calories = 0
-            var protein = 0.0
-            var fat = 0.0
-            var carbohydrates = 0.0
-
-            // Iterate through food nutrients
-            for (j in 0 until foodNutrientsArray.length()) {
-                val nutrientObject = foodNutrientsArray.getJSONObject(j)
-                when (nutrientObject.getString("nutrientName")) {
-                    "Protein" -> protein = nutrientObject.getDouble("value")
-                    "Total lipid (fat)" -> fat = nutrientObject.getDouble("value")
-                    "Carbohydrate, by difference" -> carbohydrates =
-                        nutrientObject.getDouble("value")
-
-                    "Energy" -> calories = nutrientObject.getInt("value")
+    fun getRecipesByName(recipeName: String) {
+        viewModelScope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    recipeRepository.getRecipesByName(recipeName)
                 }
+                recipeListLiveData.postValue(response)
+                Log.e("element", response.toString())
+            } catch (e: Exception) {
+                // Handle exceptions, if any
+                Log.e("getDetail", "Error fetching details: ${e.message}")
             }
-
-            // Create a FoodItem instance and add it to the list
-            val foodItem = FoodItem(
-                description,
-                fdcId,
-                calories,
-                protein,
-                fat,
-                carbohydrates,
-                brandName,
-                packageWeight
-            )
-            foodItems.add(foodItem)
         }
-
-        return foodItems
     }
 }

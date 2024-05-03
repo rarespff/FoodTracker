@@ -9,8 +9,8 @@
     <item
         android:id="@+id/menu_item_fragment_two"
         android:icon="@drawable/tracker"
-        android:actionLayout="@layout/explore_fragment"
-        android:title="Explore" />
+        android:actionLayout="@layout/recipes_fragment"
+        android:title="Recipes" />
 
     <item
         android:id="@+id/menu_item_fragment_three"

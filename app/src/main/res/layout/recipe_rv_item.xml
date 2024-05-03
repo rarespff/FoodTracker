@@ -12,29 +12,24 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imageView"
-            android:layout_width="match_parent"
+            android:layout_width="150dp"
             android:layout_height="100dp"
-            android:src="@drawable/placeholder" />
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:src="@drawable/placeholder"
+            app:shapeAppearanceOverlay="@style/Circular" />
 
         <TextView
             android:id="@+id/titleTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:gravity="center"
+            android:maxLines="3"
             android:padding="6dp"
             android:text="Paste cu ton"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/descriptionTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="6dp"
-            android:text="800 kcal"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
     </LinearLayout>

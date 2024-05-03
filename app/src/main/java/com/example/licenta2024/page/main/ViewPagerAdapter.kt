@@ -3,9 +3,9 @@ package com.example.licenta2024.page.main
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.licenta2024.page.main.fragments.HomeFragment
+import com.example.licenta2024.page.main.fragments.home.HomeFragment
 import com.example.licenta2024.page.main.fragments.ProfileFragment
-import com.example.licenta2024.page.main.fragments.ExploreFragment
+import com.example.licenta2024.page.main.fragments.RecipesFragment
 
 class ViewPagerAdapter(fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {
@@ -18,7 +18,7 @@ class ViewPagerAdapter(fragmentActivity: FragmentActivity) :
         // Return the fragment for each position
         return when (position) {
             0 -> HomeFragment()
-            1 -> ExploreFragment()
+            1 -> RecipesFragment()
             2 -> ProfileFragment()
             else -> throw IllegalArgumentException("Invalid position")
         }
