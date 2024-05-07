@@ -1,16 +1,26 @@
 package com.example.licenta2024.page.main.fragments.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.example.licenta2024.R
+import com.example.licenta2024.data.DatabaseManager
+import com.example.licenta2024.data.Day
+import com.example.licenta2024.data.Goals
+import com.example.licenta2024.page.main.MainActivity
 import com.example.licenta2024.page.main.MainViewModel
+import com.github.lzyzsd.circleprogress.DonutProgress
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -19,6 +29,41 @@ class HomeFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var calendarRv: RecyclerView
     private lateinit var adapter: JournalDayAdapter
+    private lateinit var currentDay: Day
+    private lateinit var currentGoals: Goals
+    private lateinit var caloriesGoal: TextView
+    private lateinit var consumedCalories: TextView
+    private lateinit var burnedCalories: TextView
+    private lateinit var caloriesProgressBar: DonutProgress
+    private lateinit var proteinProgressBar: ProgressBar
+    private lateinit var carbsProgressBar: ProgressBar
+    private lateinit var fatsProgressBar: ProgressBar
+    private lateinit var proteinValue: TextView
+    private lateinit var carbsValue: TextView
+    private lateinit var fatsValue: TextView
+    private lateinit var proteinGoal: TextView
+    private lateinit var carbsGoal: TextView
+    private lateinit var fatsGoal: TextView
+    private lateinit var stepsCount: TextView
+    private lateinit var stepsGoal: TextView
+    private lateinit var stepsProgressBar: ProgressBar
+    private lateinit var waterProgressBar: DonutProgress
+    private lateinit var addBreakfastButton: ImageView
+    private lateinit var addLunchButton: ImageView
+    private lateinit var addDinnerButton: ImageView
+    private lateinit var addWater250: Button
+    private lateinit var addWater500: Button
+    private lateinit var addWater750: Button
+    private lateinit var breakfastRv: RecyclerView
+    private lateinit var lunchRv: RecyclerView
+    private lateinit var dinnerRv: RecyclerView
+    private lateinit var noFoodAddedBreakfast: TextView
+    private lateinit var noFoodAddedLunch: TextView
+    private lateinit var noFoodAddedDinner: TextView
+    private val breakfastAdapter = FoodAdapter(listOf())
+    private val lunchAdapter = FoodAdapter(listOf())
+    private val dinnerAdapter = FoodAdapter(listOf())
+    private var isToday = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,6 +72,172 @@ class HomeFragment : Fragment() {
     ): View {
         val rootView = inflater.inflate(R.layout.home_fragment, container, false)
         calendarRv = rootView.findViewById(R.id.calendar_rv)
+        setUpViews(rootView)
+        updateCurrentDayData(getCurrentDayItem())
+        return rootView
+    }
+
+    private fun updateViews() {
+        addDinnerButton.setOnClickListener { (activity as? MainActivity)?.navigateToRecipesFragment() }
+        addLunchButton.setOnClickListener { (activity as? MainActivity)?.navigateToRecipesFragment() }
+        addBreakfastButton.setOnClickListener { (activity as? MainActivity)?.navigateToRecipesFragment() }
+        addDinnerButton.isEnabled = isToday
+        addBreakfastButton.isEnabled = isToday
+        addLunchButton.isEnabled = isToday
+        addWater250.isEnabled = isToday
+        addWater500.isEnabled = isToday
+        addWater750.isEnabled = isToday
+        if (isToday) {
+            addWater750.setBackgroundColor(resources.getColor(R.color.yellow))
+            addWater250.setBackgroundColor(resources.getColor(R.color.yellow))
+            addWater500.setBackgroundColor(resources.getColor(R.color.yellow))
+            addDinnerButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.plus
+                )
+            )
+            addLunchButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.plus
+                )
+            )
+            addBreakfastButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.plus
+                )
+            )
+        } else {
+            addWater750.setBackgroundColor(resources.getColor(R.color.dark_gray))
+            addWater250.setBackgroundColor(resources.getColor(R.color.dark_gray))
+            addWater500.setBackgroundColor(resources.getColor(R.color.dark_gray))
+            addDinnerButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.plus_disabled
+                )
+            )
+            addLunchButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.plus_disabled
+                )
+            )
+            addBreakfastButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.plus_disabled
+                )
+            )
+        }
+        caloriesGoal.text = currentGoals.calories.toString()
+        consumedCalories.text = currentDay.totalConsumedCalories.toString()
+        burnedCalories.text = (currentDay.steps * 0.45).toString()
+        caloriesProgressBar.max = currentGoals.calories.toInt()
+        var currentCalories =
+            currentDay.totalConsumedCalories.toInt() - currentDay.totalBurnedCalories.toInt()
+        if (currentCalories < 0) {
+            currentCalories = 0
+        }
+        if (currentCalories > caloriesProgressBar.max) {
+            caloriesProgressBar.progress = caloriesProgressBar.max
+        } else {
+            caloriesProgressBar.progress = currentCalories
+        }
+        proteinProgressBar.max = currentGoals.protein.toInt()
+        if (currentDay.proteinIntake.toInt() > proteinProgressBar.max) {
+            proteinProgressBar.progress = proteinProgressBar.max
+        } else {
+            proteinProgressBar.progress = currentDay.proteinIntake.toInt()
+        }
+        carbsProgressBar.max = currentGoals.carbs.toInt()
+        if (currentDay.carbsIntake.toInt() > carbsProgressBar.max) {
+            carbsProgressBar.progress = carbsProgressBar.max
+        } else {
+            carbsProgressBar.progress = currentDay.carbsIntake.toInt()
+        }
+        fatsProgressBar.max = currentGoals.fats.toInt()
+        if (currentDay.fatsIntake.toInt() > fatsProgressBar.max) {
+            fatsProgressBar.progress = fatsProgressBar.max
+        } else {
+            fatsProgressBar.progress = currentDay.fatsIntake.toInt()
+        }
+        proteinValue.text = currentDay.proteinIntake.toString()
+        carbsValue.text = currentDay.carbsIntake.toString()
+        fatsValue.text = currentDay.fatsIntake.toString()
+        proteinGoal.text = currentGoals.protein.toString()
+        carbsGoal.text = currentGoals.carbs.toString()
+        fatsGoal.text = currentGoals.fats.toString()
+        stepsCount.text = currentDay.steps.toString()
+        stepsGoal.text = currentGoals.waterIntakeGoal.toString()
+        stepsProgressBar.max = currentGoals.stepGoal
+        if (currentDay.steps > stepsProgressBar.max) {
+            stepsProgressBar.progress = stepsProgressBar.max
+        } else {
+            stepsProgressBar.progress = currentDay.steps
+        }
+        waterProgressBar.max = currentGoals.waterIntakeGoal
+        if (currentDay.waterIntake > waterProgressBar.max) {
+            waterProgressBar.progress = waterProgressBar.max
+        } else {
+            waterProgressBar.progress = currentDay.waterIntake
+        }
+        if (currentDay.breakfast.isNotEmpty()) {
+            breakfastAdapter.updateData(currentDay.breakfast)
+            noFoodAddedBreakfast.visibility = View.GONE
+        } else {
+            noFoodAddedBreakfast.visibility = View.VISIBLE
+        }
+        if (currentDay.lunch.isNotEmpty()) {
+            lunchAdapter.updateData(currentDay.lunch)
+            noFoodAddedLunch.visibility = View.GONE
+        } else {
+            noFoodAddedLunch.visibility = View.VISIBLE
+        }
+        if (currentDay.dinner.isNotEmpty()) {
+            dinnerAdapter.updateData(currentDay.dinner)
+            noFoodAddedDinner.visibility = View.GONE
+        } else {
+            noFoodAddedDinner.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateCurrentDayData(dayItem: DayItem) {
+        Log.e("firstCall", dayItem.dateId)
+        DatabaseManager.getUser(1L).observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                if (user.goals != null) {
+                    currentGoals = user.goals
+                    Log.e("goals: ", "goals: $currentGoals")
+                }
+                Log.e("currentDays: ", user.days.toString())
+                currentDay = user.days.find { it.dateId == dayItem.dateId } ?: Day(
+                    "invalid",
+                    dayItem.day,
+                    dayItem.dayName,
+                    dayItem.dayMonth,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0,
+                    listOf(),
+                    listOf(),
+                    listOf(),
+                    0
+                )
+                updateViews()
+                Log.e("currentDay: ", currentDay.toString())
+            } else {
+                Log.e("homeFragmentDayUpdate", "User data is null")
+            }
+        }
+    }
+
+    private fun setUpViews(rootView: View) {
         val customToolbar = rootView.findViewById<LinearLayout>(R.id.customToolbar)
         val dayNameTextView = customToolbar.findViewById<TextView>(R.id.dayNameTextView)
         val days = generateDayItems()
@@ -37,9 +248,43 @@ class HomeFragment : Fragment() {
                 calendarRv.scrollToPosition(0)
             }
             dayNameTextView.text = getFullDayName(day.dayName)
+            isToday = getCurrentDayItem().dateId == day.dateId
+            updateViews()
+            updateCurrentDayData(day)
         }
         calendarRv.adapter = adapter
-        return rootView
+        caloriesGoal = rootView.findViewById(R.id.calories_goal)
+        consumedCalories = rootView.findViewById(R.id.consumed_calories)
+        burnedCalories = rootView.findViewById(R.id.burned_calories)
+        caloriesProgressBar = rootView.findViewById(R.id.calories_progress)
+        proteinProgressBar = rootView.findViewById(R.id.protein_progress_bar)
+        proteinValue = rootView.findViewById(R.id.protein_value)
+        carbsProgressBar = rootView.findViewById(R.id.carbs_progress_bar)
+        carbsValue = rootView.findViewById(R.id.carbs_value)
+        fatsProgressBar = rootView.findViewById(R.id.fats_progress_bar)
+        fatsValue = rootView.findViewById(R.id.fats_value)
+        proteinGoal = rootView.findViewById(R.id.protein_goal)
+        carbsGoal = rootView.findViewById(R.id.carbs_goal)
+        fatsGoal = rootView.findViewById(R.id.fats_goal)
+        stepsCount = rootView.findViewById(R.id.step_count)
+        stepsGoal = rootView.findViewById(R.id.step_goal)
+        stepsProgressBar = rootView.findViewById(R.id.steps_count_progress)
+        waterProgressBar = rootView.findViewById(R.id.water_intake_progress)
+        addBreakfastButton = rootView.findViewById(R.id.add_breakfast_button)
+        addDinnerButton = rootView.findViewById(R.id.add_dinner_button)
+        addLunchButton = rootView.findViewById(R.id.add_lunch_button)
+        addWater250 = rootView.findViewById(R.id.plus_250)
+        addWater500 = rootView.findViewById(R.id.plus_500)
+        addWater750 = rootView.findViewById(R.id.plus_750)
+        breakfastRv = rootView.findViewById(R.id.breakfast_rv)
+        lunchRv = rootView.findViewById(R.id.lunch_rv)
+        dinnerRv = rootView.findViewById(R.id.dinner_rv)
+        breakfastRv.adapter = breakfastAdapter
+        lunchRv.adapter = lunchAdapter
+        dinnerRv.adapter = dinnerAdapter
+        noFoodAddedBreakfast = rootView.findViewById(R.id.no_breakfast_added)
+        noFoodAddedLunch = rootView.findViewById(R.id.no_lunch_added)
+        noFoodAddedDinner = rootView.findViewById(R.id.no_dinner_added)
     }
 
     private fun generateDayItems(): List<DayItem> {
@@ -51,9 +296,40 @@ class HomeFragment : Fragment() {
         for (i in 1..daysInMonth) {
             calendar.set(Calendar.DAY_OF_MONTH, i)
             val dayName = dateFormat.format(calendar.time)
-            dayItems.add(DayItem(i.toString(), dayName))
+
+            // Get the day, month, and year components
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+            val month = calendar.get(Calendar.MONTH) + 1 // Month is 0-based, so add 1
+            val year = calendar.get(Calendar.YEAR)
+
+            // Generate the dateId in the format DDMMYYYY
+            val dateId = "$day${month.toString().padStart(2, '0')}$year"
+
+            dayItems.add(DayItem(dateId, day.toString(), dayName, month.toString()))
         }
         return dayItems
+    }
+
+    private fun getCurrentDayItem(): DayItem {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("E", Locale.getDefault())
+
+        val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
+        val currentMonth = calendar.get(Calendar.MONTH) + 1 // Month is 0-based, so add 1
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        val currentDayName = dateFormat.format(calendar.time)
+
+        // Generate the dateId for the current day in the format DDMMYYYY
+        val currentDateId = "$currentDay${currentMonth.toString().padStart(2, '0')}$currentYear"
+
+        // Create and return a DayItem object for the current day
+        return DayItem(
+            currentDateId,
+            currentDay.toString(),
+            currentDayName,
+            currentMonth.toString()
+        )
     }
 
     private fun getFullDayName(shortDayName: String): String {

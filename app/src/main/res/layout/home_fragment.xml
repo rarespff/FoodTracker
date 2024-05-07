@@ -205,13 +205,13 @@
                         app:donut_finished_color="#0f0"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        custom:donut_progress="50" />
+                        custom:donut_progress="0" />
 
                     <TextView
                         android:id="@+id/protein_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="30dp"
+                        android:layout_marginTop="15dp"
                         android:text="Protein"
                         android:textColor="@color/white"
                         android:textSize="16sp"
@@ -242,6 +242,7 @@
                         app:layout_constraintTop_toBottomOf="@id/protein_progress_bar" />
 
                     <TextView
+                        android:id="@+id/grams_label_protein"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="g"
@@ -251,10 +252,39 @@
                         app:layout_constraintStart_toEndOf="@id/protein_value" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:text="/"
+                        android:textColor="@color/light_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@id/protein_value"
+                        app:layout_constraintStart_toEndOf="@id/grams_label_protein" />
+
+                    <TextView
+                        android:id="@+id/protein_goal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="89"
+                        android:textColor="@color/light_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/protein_value"
+                        app:layout_constraintTop_toBottomOf="@id/protein_value" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="g"
+                        android:textColor="@color/light_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toEndOf="@id/protein_goal"
+                        app:layout_constraintTop_toTopOf="@id/protein_goal" />
+
+                    <TextView
                         android:id="@+id/carbs_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="30dp"
+                        android:layout_marginTop="15dp"
                         android:text="Carbs"
                         android:textColor="@color/white"
                         android:textSize="16sp"
@@ -285,6 +315,7 @@
                         app:layout_constraintTop_toBottomOf="@id/carbs_progress_bar" />
 
                     <TextView
+                        android:id="@+id/grams_label_carbs"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="g"
@@ -294,10 +325,39 @@
                         app:layout_constraintStart_toEndOf="@id/carbs_value" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:text="/"
+                        android:textColor="@color/light_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@id/protein_value"
+                        app:layout_constraintStart_toEndOf="@id/grams_label_carbs" />
+
+                    <TextView
+                        android:id="@+id/carbs_goal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="89"
+                        android:textColor="@color/light_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/carbs_value"
+                        app:layout_constraintTop_toBottomOf="@id/carbs_value" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="g"
+                        android:textColor="@color/light_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toEndOf="@id/carbs_goal"
+                        app:layout_constraintTop_toTopOf="@id/carbs_goal" />
+
+                    <TextView
                         android:id="@+id/fats_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="30dp"
+                        android:layout_marginTop="15dp"
                         android:text="Fats"
                         android:textColor="@color/white"
                         android:textSize="16sp"
@@ -328,6 +388,7 @@
                         app:layout_constraintTop_toBottomOf="@id/fats_progress_bar" />
 
                     <TextView
+                        android:id="@+id/grams_label_fats"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="g"
@@ -335,6 +396,35 @@
                         android:textSize="14sp"
                         app:layout_constraintBottom_toBottomOf="@id/fats_value"
                         app:layout_constraintStart_toEndOf="@id/fats_value" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:text="/"
+                        android:textColor="@color/light_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@id/protein_value"
+                        app:layout_constraintStart_toEndOf="@id/grams_label_fats" />
+
+                    <TextView
+                        android:id="@+id/fats_goal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="89"
+                        android:textColor="@color/light_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/fats_value"
+                        app:layout_constraintTop_toBottomOf="@id/fats_value" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="g"
+                        android:textColor="@color/light_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toEndOf="@id/fats_goal"
+                        app:layout_constraintTop_toTopOf="@id/fats_goal" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
@@ -376,6 +466,7 @@
                         app:layout_constraintStart_toStartOf="parent" />
 
                     <TextView
+                        android:id="@+id/no_breakfast_added"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="No food added yet"
@@ -384,6 +475,16 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/breakfast_rv"
+                        android:layout_width="match_parent"
+                        android:layout_height="95dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:orientation="vertical"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
@@ -425,6 +526,7 @@
                         app:layout_constraintStart_toStartOf="parent" />
 
                     <TextView
+                        android:id="@+id/no_lunch_added"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="No food added yet"
@@ -433,6 +535,16 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/lunch_rv"
+                        android:layout_width="match_parent"
+                        android:layout_height="95dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:orientation="vertical"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
@@ -474,6 +586,7 @@
                         app:layout_constraintStart_toStartOf="parent" />
 
                     <TextView
+                        android:id="@+id/no_dinner_added"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="No food added yet"
@@ -482,6 +595,16 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/dinner_rv"
+                        android:layout_width="match_parent"
+                        android:layout_height="95dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:orientation="vertical"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>

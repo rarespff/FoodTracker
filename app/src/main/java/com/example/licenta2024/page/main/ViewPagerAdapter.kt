@@ -4,8 +4,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.licenta2024.page.main.fragments.home.HomeFragment
-import com.example.licenta2024.page.main.fragments.ProfileFragment
-import com.example.licenta2024.page.main.fragments.RecipesFragment
+import com.example.licenta2024.page.main.fragments.profile.ProfileFragment
+import com.example.licenta2024.page.main.fragments.recipes.RecipesFragment
 
 class ViewPagerAdapter(fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {

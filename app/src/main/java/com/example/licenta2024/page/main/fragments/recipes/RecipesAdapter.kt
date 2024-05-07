@@ -1,4 +1,4 @@
-package com.example.licenta2024.page.main
+package com.example.licenta2024.page.main.fragments.recipes
 
 import android.view.LayoutInflater
 import android.view.View

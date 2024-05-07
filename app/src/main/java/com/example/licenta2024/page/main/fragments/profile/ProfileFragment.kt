@@ -1,4 +1,4 @@
-package com.example.licenta2024.page.main.fragments
+package com.example.licenta2024.page.main.fragments.profile
 
 import android.os.Bundle
 import android.view.LayoutInflater

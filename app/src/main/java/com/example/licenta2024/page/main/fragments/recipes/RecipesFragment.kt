@@ -1,4 +1,4 @@
-package com.example.licenta2024.page.main.fragments
+package com.example.licenta2024.page.main.fragments.recipes
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.licenta2024.R
 import com.example.licenta2024.page.main.MainViewModel
-import com.example.licenta2024.page.main.RecipesAdapter
 import com.example.licenta2024.page.recipe.DetailedRecipeActivity
 
 class RecipesFragment : Fragment() {

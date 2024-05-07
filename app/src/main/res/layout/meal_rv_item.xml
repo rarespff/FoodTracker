@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/gray">
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Jalapeno Cornbread Stuffing"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=","
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/name"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="500"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/name"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="g"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/quantity"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/calories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1200"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/name" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:text="kCal"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/calories"
+        app:layout_constraintTop_toTopOf="@id/calories" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:text=","
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/calories"
+        app:layout_constraintTop_toTopOf="@id/calories" />
+
+    <TextView
+        android:id="@+id/protein"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="35dp"
+        android:text="70"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/calories"
+        app:layout_constraintTop_toTopOf="@id/calories" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="g protein"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/protein"
+        app:layout_constraintTop_toTopOf="@id/protein" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="55dp"
+        android:text=","
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/protein"
+        app:layout_constraintTop_toTopOf="@id/protein" />
+
+    <TextView
+        android:id="@+id/carbs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:text="60"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/protein"
+        app:layout_constraintTop_toTopOf="@id/protein" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="g carbs"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/carbs"
+        app:layout_constraintTop_toTopOf="@id/carbs" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="47dp"
+        android:text=","
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/carbs"
+        app:layout_constraintTop_toTopOf="@id/carbs" />
+
+    <TextView
+        android:id="@+id/fats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="53dp"
+        android:text="30"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/carbs"
+        app:layout_constraintTop_toTopOf="@id/carbs" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="g fats"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@id/fats"
+        app:layout_constraintTop_toTopOf="@id/fats" />
+</androidx.constraintlayout.widget.ConstraintLayout>

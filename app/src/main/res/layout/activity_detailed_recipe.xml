@@ -290,6 +290,7 @@
             app:layout_constraintTop_toBottomOf="@id/separator4">
 
             <Button
+                android:id="@+id/add_to_journal"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
