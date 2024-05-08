@@ -9,14 +9,14 @@ data class Day(
     val dayNumber: String,
     val dayName: String,
     val dayMonth: String,
-    val totalConsumedCalories: Double,
-    val totalBurnedCalories: Double,
-    val proteinIntake: Double,
-    val carbsIntake: Double,
-    val fatsIntake: Double,
-    val waterIntake: Int,
+    var totalConsumedCalories: Double,
+    var totalBurnedCalories: Double,
+    var proteinIntake: Double,
+    var carbsIntake: Double,
+    var fatsIntake: Double,
+    var waterIntake: Int,
     var breakfast: List<Food>,
     var lunch: List<Food>,
     var dinner: List<Food>,
-    val steps: Int
+    var steps: Int
 )

@@ -12,7 +12,7 @@ interface UserDao {
     suspend fun addUser(user: User)
 
     @Query("SELECT * FROM User WHERE userId = :userId")
-    fun getUser(userId: Long): LiveData<User?>
+    fun getUser(userId: Long): LiveData<User>
 
     @Update
     suspend fun updateUser(user: User)

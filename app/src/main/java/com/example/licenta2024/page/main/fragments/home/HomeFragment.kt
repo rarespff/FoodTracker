@@ -1,5 +1,10 @@
 package com.example.licenta2024.page.main.fragments.home
 
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,9 +23,13 @@ import com.example.licenta2024.R
 import com.example.licenta2024.data.DatabaseManager
 import com.example.licenta2024.data.Day
 import com.example.licenta2024.data.Goals
+import com.example.licenta2024.data.User
 import com.example.licenta2024.page.main.MainActivity
 import com.example.licenta2024.page.main.MainViewModel
 import com.github.lzyzsd.circleprogress.DonutProgress
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -64,6 +73,7 @@ class HomeFragment : Fragment() {
     private val lunchAdapter = FoodAdapter(listOf())
     private val dinnerAdapter = FoodAdapter(listOf())
     private var isToday = true
+    private lateinit var currentUser: User
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,8 +83,42 @@ class HomeFragment : Fragment() {
         val rootView = inflater.inflate(R.layout.home_fragment, container, false)
         calendarRv = rootView.findViewById(R.id.calendar_rv)
         setUpViews(rootView)
+        getCurrentUser()
         updateCurrentDayData(getCurrentDayItem())
+        getStepCount { }
         return rootView
+    }
+
+    private fun getStepCount(callback: (Int) -> Unit) {
+        val sensorManager: SensorManager =
+            requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val stepSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        if (stepSensor == null) {
+            Log.e("STEP SENSOR", "sensor not available")
+        }
+        val sensorEventListener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent) {
+                // Extract step count from the sensor event
+                val steps = event.values[0].toInt()
+                Log.e("STEP SENSOR", steps.toString())
+                callback(steps)
+                // Unregister listener after receiving the first step count update
+                sensorManager.unregisterListener(this)
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+                // Handle accuracy change if needed
+            }
+        }
+
+        // Register sensor listener
+        stepSensor?.let {
+            sensorManager.registerListener(
+                sensorEventListener,
+                it,
+                SensorManager.SENSOR_DELAY_NORMAL
+            )
+        }
     }
 
     private fun updateViews() {
@@ -91,6 +135,15 @@ class HomeFragment : Fragment() {
             addWater750.setBackgroundColor(resources.getColor(R.color.yellow))
             addWater250.setBackgroundColor(resources.getColor(R.color.yellow))
             addWater500.setBackgroundColor(resources.getColor(R.color.yellow))
+            addWater500.setOnClickListener {
+                addWater(500)
+            }
+            addWater250.setOnClickListener {
+                addWater(250)
+            }
+            addWater750.setOnClickListener {
+                addWater(750)
+            }
             addDinnerButton.setImageDrawable(
                 ContextCompat.getDrawable(
                     requireContext(),
@@ -189,30 +242,32 @@ class HomeFragment : Fragment() {
             noFoodAddedBreakfast.visibility = View.GONE
         } else {
             noFoodAddedBreakfast.visibility = View.VISIBLE
+            breakfastAdapter.updateData(listOf())
         }
         if (currentDay.lunch.isNotEmpty()) {
             lunchAdapter.updateData(currentDay.lunch)
             noFoodAddedLunch.visibility = View.GONE
         } else {
             noFoodAddedLunch.visibility = View.VISIBLE
+            lunchAdapter.updateData(listOf())
         }
         if (currentDay.dinner.isNotEmpty()) {
             dinnerAdapter.updateData(currentDay.dinner)
             noFoodAddedDinner.visibility = View.GONE
         } else {
             noFoodAddedDinner.visibility = View.VISIBLE
+            dinnerAdapter.updateData(listOf())
         }
     }
 
     private fun updateCurrentDayData(dayItem: DayItem) {
         Log.e("firstCall", dayItem.dateId)
         DatabaseManager.getUser(1L).observe(viewLifecycleOwner) { user ->
+            Log.e("USERU HOME", user.toString())
             if (user != null) {
                 if (user.goals != null) {
                     currentGoals = user.goals
-                    Log.e("goals: ", "goals: $currentGoals")
                 }
-                Log.e("currentDays: ", user.days.toString())
                 currentDay = user.days.find { it.dateId == dayItem.dateId } ?: Day(
                     "invalid",
                     dayItem.day,
@@ -285,6 +340,30 @@ class HomeFragment : Fragment() {
         noFoodAddedBreakfast = rootView.findViewById(R.id.no_breakfast_added)
         noFoodAddedLunch = rootView.findViewById(R.id.no_lunch_added)
         noFoodAddedDinner = rootView.findViewById(R.id.no_dinner_added)
+    }
+
+    fun addWater(quantity: Int) {
+        val currentDay = currentUser.days.find { it.dateId == getCurrentDayItem().dateId }
+        currentDay?.let { day ->
+            val updatedWaterIntake = day.waterIntake + quantity
+            val updatedDay = day.copy(waterIntake = updatedWaterIntake)
+            val updatedDays =
+                currentUser.days.map { if (it.dateId == updatedDay.dateId) updatedDay else it }
+            val updatedUser = currentUser.copy(days = updatedDays)
+            postUpdatedUser(updatedUser)
+        }
+    }
+
+    private fun postUpdatedUser(updatedUser: User) {
+        CoroutineScope(Dispatchers.IO).launch {
+            DatabaseManager.updateUser(updatedUser)
+        }
+    }
+
+    private fun getCurrentUser() {
+        DatabaseManager.getUser(1L).observe(viewLifecycleOwner) { user ->
+            currentUser = user
+        }
     }
 
     private fun generateDayItems(): List<DayItem> {

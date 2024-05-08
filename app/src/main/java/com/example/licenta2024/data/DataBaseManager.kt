@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Room
 
 object DatabaseManager {
-    private var database: AppDatabase? = null
+    private lateinit var database: AppDatabase
 
     fun initialize(context: Context) {
         database = Room.databaseBuilder(
@@ -15,14 +15,14 @@ object DatabaseManager {
     }
 
     suspend fun addUser(user: User) {
-        database?.userDao()?.addUser(user)
+        database.userDao().addUser(user)
     }
 
-    fun getUser(userId: Long): LiveData<User?> {
-        return database!!.userDao().getUser(userId)
+    fun getUser(userId: Long): LiveData<User> {
+        return database.userDao().getUser(userId)
     }
 
     suspend fun updateUser(user: User) {
-        database?.userDao()?.updateUser(user)
+        database.userDao().updateUser(user)
     }
 }

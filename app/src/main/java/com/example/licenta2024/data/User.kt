@@ -15,5 +15,5 @@ data class User(
     val height: Double,
     val image: String?,
     val goals: Goals?,
-    val days: List<Day>
+    var days: List<Day>
 )

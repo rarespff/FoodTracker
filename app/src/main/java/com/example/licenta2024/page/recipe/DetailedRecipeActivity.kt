@@ -1,7 +1,7 @@
 package com.example.licenta2024.page.recipe
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -14,17 +14,22 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.licenta2024.R
 import com.example.licenta2024.data.DatabaseManager
+import com.example.licenta2024.data.Day
 import com.example.licenta2024.data.DetailedRecipe
 import com.example.licenta2024.data.Food
+import com.example.licenta2024.data.User
+import com.example.licenta2024.page.main.MainActivity
 import com.example.licenta2024.page.main.fragments.home.DayItem
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
 
 @AndroidEntryPoint
 class DetailedRecipeActivity : AppCompatActivity() {
@@ -38,6 +43,7 @@ class DetailedRecipeActivity : AppCompatActivity() {
     private val fatsValue by lazy { findViewById<TextView>(R.id.fats_value) }
     private val recipeCalories by lazy { findViewById<TextView>(R.id.recipe_calories) }
     private lateinit var currentRecipe: DetailedRecipe
+    private lateinit var currentUser: User
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detailed_recipe)
@@ -61,53 +67,48 @@ class DetailedRecipeActivity : AppCompatActivity() {
                     var quantity = editTextQuantity.text.toString().toDoubleOrNull() ?: 0.0
                     quantity /= 1000.0
                     val selectedMeal = spinnerMeal.selectedItem as String
-                    Log.e("dialog:", quantity.toString())
-                    Log.e("dialog:", selectedMeal)
-
-                    // Launch a coroutine in the IO context to perform the database operation
-                    DatabaseManager.getUser(1L).observe(this@DetailedRecipeActivity) { user ->
-                        // Check if user is not null before proceeding
-                        user ?: return@observe
-
-                        when (selectedMeal) {
-                            mealsArray[0] -> {
-                                var currentBreakfast =
-                                    user.days.find { it.dateId == getCurrentDayItem().dateId }?.breakfast as MutableList?
-                                if (currentBreakfast == null) {
-                                    currentBreakfast = mutableListOf()
-                                }
-                                currentBreakfast.add(getNewFoodObject(quantity))
-                                user.days.find { it.dateId == getCurrentDayItem().dateId }?.breakfast =
-                                    currentBreakfast
-                            }
-
-                            mealsArray[1] -> {
-                                var currentLunch =
-                                    user.days.find { it.dateId == getCurrentDayItem().dateId }?.lunch as MutableList?
-                                if (currentLunch == null) {
-                                    currentLunch = mutableListOf()
-                                }
-                                currentLunch.add(getNewFoodObject(quantity))
-                                user.days.find { it.dateId == getCurrentDayItem().dateId }?.lunch =
-                                    currentLunch
-                            }
-
-                            mealsArray[2] -> {
-                                var currentDinner =
-                                    user.days.find { it.dateId == getCurrentDayItem().dateId }?.dinner as MutableList?
-                                if (currentDinner == null) {
-                                    currentDinner = mutableListOf()
-                                }
-                                currentDinner.add(getNewFoodObject(quantity))
-                                user.days.find { it.dateId == getCurrentDayItem().dateId }?.dinner =
-                                    currentDinner
+                    when (selectedMeal) {
+                        mealsArray[0] -> {
+                            // Breakfast case
+                            handleMeal(currentUser, getCurrentDayItem().dateId) { day ->
+                                val currentBreakfast = day.breakfast.toMutableList()
+                                val newFood = getNewFoodObject(quantity)
+                                currentBreakfast.add(newFood)
+                                day.totalConsumedCalories += newFood.calories
+                                day.proteinIntake += newFood.protein
+                                day.carbsIntake += newFood.carbs
+                                day.fatsIntake += newFood.fats
+                                day.copy(breakfast = currentBreakfast)
                             }
                         }
-                        Log.e("newUser", user.toString())
-                        CoroutineScope(Dispatchers.IO).launch {
-                            DatabaseManager.updateUser(user)
+
+                        mealsArray[1] -> {
+                            // Lunch case
+                            handleMeal(currentUser, getCurrentDayItem().dateId) { day ->
+                                val currentLunch = day.lunch.toMutableList()
+                                val newFood = getNewFoodObject(quantity)
+                                currentLunch.add(newFood)
+                                day.totalConsumedCalories += newFood.calories
+                                day.proteinIntake += newFood.protein
+                                day.carbsIntake += newFood.carbs
+                                day.fatsIntake += newFood.fats
+                                day.copy(lunch = currentLunch)
+                            }
                         }
 
+                        mealsArray[2] -> {
+                            // Dinner case
+                            handleMeal(currentUser, getCurrentDayItem().dateId) { day ->
+                                val currentDinner = day.dinner.toMutableList()
+                                val newFood = getNewFoodObject(quantity)
+                                currentDinner.add(newFood)
+                                day.totalConsumedCalories += newFood.calories
+                                day.proteinIntake += newFood.protein
+                                day.carbsIntake += newFood.carbs
+                                day.fatsIntake += newFood.fats
+                                day.copy(dinner = currentDinner)
+                            }
+                        }
                     }
                 }
                 .setNegativeButton("Cancel") { dialog, which ->
@@ -117,15 +118,65 @@ class DetailedRecipeActivity : AppCompatActivity() {
         }
     }
 
+    private inline fun handleMeal(
+        user: User,
+        dateId: String,
+        modifyDay: (Day) -> Day
+    ) {
+        val currentUserDays = user.days.toMutableList()
+        val currentDay = currentUserDays.find { it.dateId == dateId }
+            ?: getCurrentDayItem().let {
+                Day(
+                    it.dateId,
+                    it.day,
+                    it.dayName,
+                    it.dayMonth,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0,
+                    listOf(),
+                    listOf(),
+                    listOf(),
+                    0
+                )
+            }
+        val updatedDay = modifyDay(currentDay)
+        val index = currentUserDays.indexOfFirst { it.dateId == dateId }
+        if (index != -1) {
+            currentUserDays[index] = updatedDay
+        } else {
+            currentUserDays.add(updatedDay)
+        }
+        user.days = currentUserDays
+        CoroutineScope(Dispatchers.IO).launch {
+            DatabaseManager.updateUser(user)
+        }
+        val intent = Intent(
+            this,
+            MainActivity::class.java
+        )
+        startActivity(intent)
+    }
+
     private fun getNewFoodObject(quantity: Double): Food {
-        var protein = currentRecipe.nutrition.nutrients[8].amount ?: 0.0
-        protein *= quantity
-        var fats = currentRecipe.nutrition.nutrients[1].amount ?: 0.0
-        fats *= quantity
-        var carbs = currentRecipe.nutrition.nutrients[3].amount ?: 0.0
-        carbs *= quantity
-        var calories = currentRecipe.nutrition.nutrients[0].amount ?: 0.0
-        calories *= quantity
+        val decimalFormat = DecimalFormat("#.#")
+
+        var protein = currentRecipe.nutrition.nutrients[8].amount?.let {
+            decimalFormat.format(it * quantity).toDouble()
+        } ?: 0.0
+        var fats = currentRecipe.nutrition.nutrients[1].amount?.let {
+            decimalFormat.format(it * quantity).toDouble()
+        } ?: 0.0
+        var carbs = currentRecipe.nutrition.nutrients[3].amount?.let {
+            decimalFormat.format(it * quantity).toDouble()
+        } ?: 0.0
+        var calories = currentRecipe.nutrition.nutrients[0].amount?.let {
+            decimalFormat.format(it * quantity).toDouble()
+        } ?: 0.0
+
         val title = currentRecipe.title ?: ""
         return Food(
             0,
@@ -138,12 +189,18 @@ class DetailedRecipeActivity : AppCompatActivity() {
         )
     }
 
+    private fun getCurrentUser() {
+        DatabaseManager.getUser(1L).observe(this) { user ->
+            currentUser = user
+        }
+    }
+
     private fun handleRecipeData() {
         recipeViewModel.detailedRecipe.observe(this) { detailedRecipe ->
             currentRecipe = detailedRecipe
             showRecipe(detailedRecipe)
         }
-
+        getCurrentUser()
         val recipeId = intent.getIntExtra("RECIPE", -1)
         if (recipeId != -1) {
             recipeViewModel.fetchDetailedRecipe(recipeId)
