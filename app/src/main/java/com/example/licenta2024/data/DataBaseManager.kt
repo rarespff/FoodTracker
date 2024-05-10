@@ -25,4 +25,8 @@ object DatabaseManager {
     suspend fun updateUser(user: User) {
         database.userDao().updateUser(user)
     }
+
+    fun getUserByEmail(email: String): LiveData<User?> {
+        return database.userDao().getUserByEmail(email)
+    }
 }

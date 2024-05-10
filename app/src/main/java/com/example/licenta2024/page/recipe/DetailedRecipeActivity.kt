@@ -1,7 +1,10 @@
 package com.example.licenta2024.page.recipe
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -20,6 +23,7 @@ import com.example.licenta2024.data.Food
 import com.example.licenta2024.data.User
 import com.example.licenta2024.page.main.MainActivity
 import com.example.licenta2024.page.main.fragments.home.DayItem
+import com.example.licenta2024.page.start.StartActivity
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -44,8 +48,13 @@ class DetailedRecipeActivity : AppCompatActivity() {
     private val recipeCalories by lazy { findViewById<TextView>(R.id.recipe_calories) }
     private lateinit var currentRecipe: DetailedRecipe
     private lateinit var currentUser: User
+    private var userId = -1L
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        userId = getCurrentUserId()
+        if (userId == -1L) {
+            goToLogin()
+        }
         setContentView(R.layout.activity_detailed_recipe)
         handleRecipeData()
         handleFoodAdding()
@@ -63,13 +72,12 @@ class DetailedRecipeActivity : AppCompatActivity() {
             val builder = AlertDialog.Builder(this)
             builder.setView(dialogView)
                 .setTitle("Add Food")
-                .setPositiveButton("Add") { dialog, which ->
+                .setPositiveButton("Add") { _, _ ->
                     var quantity = editTextQuantity.text.toString().toDoubleOrNull() ?: 0.0
-                    quantity /= 1000.0
+                    quantity /= 100.0
                     val selectedMeal = spinnerMeal.selectedItem as String
                     when (selectedMeal) {
                         mealsArray[0] -> {
-                            // Breakfast case
                             handleMeal(currentUser, getCurrentDayItem().dateId) { day ->
                                 val currentBreakfast = day.breakfast.toMutableList()
                                 val newFood = getNewFoodObject(quantity)
@@ -111,7 +119,7 @@ class DetailedRecipeActivity : AppCompatActivity() {
                         }
                     }
                 }
-                .setNegativeButton("Cancel") { dialog, which ->
+                .setNegativeButton("Cancel") { dialog, _ ->
                     dialog.dismiss()
                 }
                 .show()
@@ -131,11 +139,11 @@ class DetailedRecipeActivity : AppCompatActivity() {
                     it.day,
                     it.dayName,
                     it.dayMonth,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
                     0,
                     listOf(),
                     listOf(),
@@ -163,19 +171,19 @@ class DetailedRecipeActivity : AppCompatActivity() {
 
     private fun getNewFoodObject(quantity: Double): Food {
         val decimalFormat = DecimalFormat("#.#")
-
-        var protein = currentRecipe.nutrition.nutrients[8].amount?.let {
-            decimalFormat.format(it * quantity).toDouble()
-        } ?: 0.0
-        var fats = currentRecipe.nutrition.nutrients[1].amount?.let {
-            decimalFormat.format(it * quantity).toDouble()
-        } ?: 0.0
-        var carbs = currentRecipe.nutrition.nutrients[3].amount?.let {
-            decimalFormat.format(it * quantity).toDouble()
-        } ?: 0.0
-        var calories = currentRecipe.nutrition.nutrients[0].amount?.let {
-            decimalFormat.format(it * quantity).toDouble()
-        } ?: 0.0
+        Log.e("rares", "quantity: $quantity")
+        val protein = currentRecipe.nutrition.nutrients[8].amount?.let {
+            decimalFormat.format(it * quantity).toDouble().toInt()
+        } ?: 0
+        val fats = currentRecipe.nutrition.nutrients[1].amount?.let {
+            decimalFormat.format(it * quantity).toDouble().toInt()
+        } ?: 0
+        val carbs = currentRecipe.nutrition.nutrients[3].amount?.let {
+            decimalFormat.format(it * quantity).toDouble().toInt()
+        } ?: 0
+        val calories = currentRecipe.nutrition.nutrients[0].amount?.let {
+            decimalFormat.format(it * quantity).toDouble().toInt()
+        } ?: 0
 
         val title = currentRecipe.title ?: ""
         return Food(
@@ -185,14 +193,26 @@ class DetailedRecipeActivity : AppCompatActivity() {
             protein,
             carbs,
             fats,
-            quantity
+            (quantity * 100).toInt()
         )
     }
 
     private fun getCurrentUser() {
-        DatabaseManager.getUser(1L).observe(this) { user ->
+        DatabaseManager.getUser(userId).observe(this) { user ->
             currentUser = user
         }
+    }
+
+    private fun goToLogin() {
+        val intent = Intent(this, StartActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun getCurrentUserId(): Long {
+        val sharedPreferences: SharedPreferences =
+            getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val userIdString: String? = sharedPreferences.getString("userId", null)
+        return userIdString?.toLongOrNull() ?: -1L
     }
 
     private fun handleRecipeData() {
@@ -224,17 +244,11 @@ class DetailedRecipeActivity : AppCompatActivity() {
     private fun getCurrentDayItem(): DayItem {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("E", Locale.getDefault())
-
         val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1 // Month is 0-based, so add 1
+        val currentMonth = calendar.get(Calendar.MONTH) + 1
         val currentYear = calendar.get(Calendar.YEAR)
-
         val currentDayName = dateFormat.format(calendar.time)
-
-        // Generate the dateId for the current day in the format DDMMYYYY
         val currentDateId = "$currentDay${currentMonth.toString().padStart(2, '0')}$currentYear"
-
-        // Create and return a DayItem object for the current day
         return DayItem(
             currentDateId,
             currentDay.toString(),

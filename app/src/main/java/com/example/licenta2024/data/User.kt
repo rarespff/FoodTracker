@@ -11,8 +11,10 @@ data class User(
     val lastName: String,
     val password: String,
     val age: Int,
-    val weight: Double,
-    val height: Double,
+    val weight: Int,
+    val height: Int,
+    val activityLevel: String,
+    val gender: String,
     val image: String?,
     val goals: Goals?,
     var days: List<Day>

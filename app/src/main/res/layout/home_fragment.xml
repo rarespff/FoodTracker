@@ -198,7 +198,7 @@
                         app:layout_constraintBottom_toBottomOf="@id/burned_calories"
                         app:layout_constraintStart_toEndOf="@id/burned_calories" />
 
-                    <com.github.lzyzsd.circleprogress.DonutProgress
+                    <com.example.licenta2024.page.views.CaloriesProgress
                         android:id="@+id/calories_progress"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
@@ -695,7 +695,7 @@
                         app:layout_constraintStart_toEndOf="@id/water_label"
                         app:layout_constraintTop_toTopOf="@id/water_label" />
 
-                    <com.github.lzyzsd.circleprogress.DonutProgress
+                    <com.example.licenta2024.page.views.WaterProgress
                         android:id="@+id/water_intake_progress"
                         android:layout_width="100dp"
                         android:layout_height="100dp"

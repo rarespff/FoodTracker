@@ -27,14 +27,25 @@
         app:layout_constraintTop_toTopOf="@id/profile_bk" />
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/first_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:text="Rares Zete"
+        android:text="Rares"
         android:textColor="@color/light_gray"
         android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@id/profile_bk"
+        app:layout_constraintTop_toTopOf="@id/profile_bk" />
+
+    <TextView
+        android:id="@+id/last_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="Zete"
+        android:textColor="@color/light_gray"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@id/first_name"
         app:layout_constraintTop_toTopOf="@id/profile_bk" />
 
     <TextView
@@ -43,22 +54,55 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginTop="3dp"
-        android:text="22 ani, Active"
+        android:text="22"
         android:textColor="@color/light_gray"
         android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@id/profile_bk"
-        app:layout_constraintTop_toBottomOf="@id/name" />
+        app:layout_constraintTop_toBottomOf="@id/last_name" />
 
     <TextView
-        android:id="@+id/goals"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text=","
+        android:textColor="@color/light_gray"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@id/age"
+        app:layout_constraintTop_toBottomOf="@id/last_name" />
+
+    <TextView
+        android:id="@+id/activity_level"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="3dp"
+        android:text="Active"
+        android:textColor="@color/light_gray"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@id/age"
+        app:layout_constraintTop_toBottomOf="@id/last_name" />
+
+    <TextView
+        android:id="@+id/calorie_goal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginTop="3dp"
-        android:text="3362 kcal"
+        android:text="3362"
         android:textColor="@color/light_gray"
         android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@id/profile_bk"
+        app:layout_constraintTop_toBottomOf="@id/age" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="3dp"
+        android:text="kcal"
+        android:textColor="@color/light_gray"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@id/calorie_goal"
         app:layout_constraintTop_toBottomOf="@id/age" />
 
     <ImageView
@@ -82,7 +126,7 @@
         android:textSize="18sp"
         android:textStyle="italic"
         app:layout_constraintStart_toEndOf="@id/profile_bk"
-        app:layout_constraintTop_toBottomOf="@id/goals" />
+        app:layout_constraintTop_toBottomOf="@id/calorie_goal" />
 
     <TextView
         android:id="@+id/bmr_text_view"
@@ -111,11 +155,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="1668 kcal"
+        android:text="1668"
         android:textColor="@color/light_gray"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bmr_text_view" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="kcal"
+        android:textColor="@color/light_gray"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/bmr_value"
+        app:layout_constraintTop_toTopOf="@id/bmr_value" />
 
     <ImageView
         android:layout_width="30dp"
@@ -150,14 +204,25 @@
         app:layout_constraintTop_toTopOf="@id/tdee_text_view" />
 
     <TextView
+        android:id="@+id/tdee_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="2585 kcal"
+        android:text="2585"
         android:textColor="@color/light_gray"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tdee_text_view" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="kcal"
+        android:textColor="@color/light_gray"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/tdee_value"
+        app:layout_constraintTop_toTopOf="@id/tdee_value" />
 
     <ImageView
         android:layout_width="30dp"

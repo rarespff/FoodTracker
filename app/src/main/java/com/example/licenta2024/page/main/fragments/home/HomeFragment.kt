@@ -1,6 +1,8 @@
 package com.example.licenta2024.page.main.fragments.home
 
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -17,7 +19,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.example.licenta2024.R
 import com.example.licenta2024.data.DatabaseManager
@@ -25,7 +26,7 @@ import com.example.licenta2024.data.Day
 import com.example.licenta2024.data.Goals
 import com.example.licenta2024.data.User
 import com.example.licenta2024.page.main.MainActivity
-import com.example.licenta2024.page.main.MainViewModel
+import com.example.licenta2024.page.start.StartActivity
 import com.github.lzyzsd.circleprogress.DonutProgress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +36,6 @@ import java.util.Calendar
 import java.util.Locale
 
 class HomeFragment : Fragment() {
-    private val viewModel: MainViewModel by activityViewModels()
     private lateinit var calendarRv: RecyclerView
     private lateinit var adapter: JournalDayAdapter
     private lateinit var currentDay: Day
@@ -74,6 +74,7 @@ class HomeFragment : Fragment() {
     private val dinnerAdapter = FoodAdapter(listOf())
     private var isToday = true
     private lateinit var currentUser: User
+    private var userId = -1L
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -81,6 +82,10 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val rootView = inflater.inflate(R.layout.home_fragment, container, false)
+        userId = getCurrentUserId()
+        if (userId == -1L) {
+            goToLogin()
+        }
         calendarRv = rootView.findViewById(R.id.calendar_rv)
         setUpViews(rootView)
         getCurrentUser()
@@ -188,9 +193,9 @@ class HomeFragment : Fragment() {
         caloriesGoal.text = currentGoals.calories.toString()
         consumedCalories.text = currentDay.totalConsumedCalories.toString()
         burnedCalories.text = (currentDay.steps * 0.45).toString()
-        caloriesProgressBar.max = currentGoals.calories.toInt()
+        caloriesProgressBar.max = currentGoals.calories
         var currentCalories =
-            currentDay.totalConsumedCalories.toInt() - currentDay.totalBurnedCalories.toInt()
+            currentDay.totalConsumedCalories - currentDay.totalBurnedCalories
         if (currentCalories < 0) {
             currentCalories = 0
         }
@@ -199,23 +204,23 @@ class HomeFragment : Fragment() {
         } else {
             caloriesProgressBar.progress = currentCalories
         }
-        proteinProgressBar.max = currentGoals.protein.toInt()
-        if (currentDay.proteinIntake.toInt() > proteinProgressBar.max) {
+        proteinProgressBar.max = currentGoals.protein
+        if (currentDay.proteinIntake > proteinProgressBar.max) {
             proteinProgressBar.progress = proteinProgressBar.max
         } else {
-            proteinProgressBar.progress = currentDay.proteinIntake.toInt()
+            proteinProgressBar.progress = currentDay.proteinIntake
         }
-        carbsProgressBar.max = currentGoals.carbs.toInt()
-        if (currentDay.carbsIntake.toInt() > carbsProgressBar.max) {
+        carbsProgressBar.max = currentGoals.carbs
+        if (currentDay.carbsIntake > carbsProgressBar.max) {
             carbsProgressBar.progress = carbsProgressBar.max
         } else {
-            carbsProgressBar.progress = currentDay.carbsIntake.toInt()
+            carbsProgressBar.progress = currentDay.carbsIntake
         }
-        fatsProgressBar.max = currentGoals.fats.toInt()
-        if (currentDay.fatsIntake.toInt() > fatsProgressBar.max) {
+        fatsProgressBar.max = currentGoals.fats
+        if (currentDay.fatsIntake > fatsProgressBar.max) {
             fatsProgressBar.progress = fatsProgressBar.max
         } else {
-            fatsProgressBar.progress = currentDay.fatsIntake.toInt()
+            fatsProgressBar.progress = currentDay.fatsIntake
         }
         proteinValue.text = currentDay.proteinIntake.toString()
         carbsValue.text = currentDay.carbsIntake.toString()
@@ -224,7 +229,7 @@ class HomeFragment : Fragment() {
         carbsGoal.text = currentGoals.carbs.toString()
         fatsGoal.text = currentGoals.fats.toString()
         stepsCount.text = currentDay.steps.toString()
-        stepsGoal.text = currentGoals.waterIntakeGoal.toString()
+        stepsGoal.text = currentGoals.stepGoal.toString()
         stepsProgressBar.max = currentGoals.stepGoal
         if (currentDay.steps > stepsProgressBar.max) {
             stepsProgressBar.progress = stepsProgressBar.max
@@ -263,7 +268,6 @@ class HomeFragment : Fragment() {
     private fun updateCurrentDayData(dayItem: DayItem) {
         Log.e("firstCall", dayItem.dateId)
         DatabaseManager.getUser(1L).observe(viewLifecycleOwner) { user ->
-            Log.e("USERU HOME", user.toString())
             if (user != null) {
                 if (user.goals != null) {
                     currentGoals = user.goals
@@ -273,11 +277,11 @@ class HomeFragment : Fragment() {
                     dayItem.day,
                     dayItem.dayName,
                     dayItem.dayMonth,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
                     0,
                     listOf(),
                     listOf(),
@@ -342,13 +346,36 @@ class HomeFragment : Fragment() {
         noFoodAddedDinner = rootView.findViewById(R.id.no_dinner_added)
     }
 
-    fun addWater(quantity: Int) {
+    private fun addWater(quantity: Int) {
         val currentDay = currentUser.days.find { it.dateId == getCurrentDayItem().dateId }
-        currentDay?.let { day ->
-            val updatedWaterIntake = day.waterIntake + quantity
-            val updatedDay = day.copy(waterIntake = updatedWaterIntake)
+        Log.e("addWaterDay:", currentDay.toString())
+        if (currentDay != null) {
+            val updatedWaterIntake = currentDay.waterIntake + quantity
+            val updatedDay = currentDay.copy(waterIntake = updatedWaterIntake)
             val updatedDays =
                 currentUser.days.map { if (it.dateId == updatedDay.dateId) updatedDay else it }
+            val updatedUser = currentUser.copy(days = updatedDays)
+            postUpdatedUser(updatedUser)
+        } else {
+            val today = getCurrentDayItem()
+            val newDay = Day(
+                today.dateId,
+                today.day,
+                today.dayName,
+                today.dayMonth,
+                0,
+                0,
+                0,
+                0,
+                0,
+                quantity,
+                listOf(),
+                listOf(),
+                listOf(),
+                0
+            )
+            val updatedDays = currentUser.days as MutableList
+            updatedDays.add(newDay)
             val updatedUser = currentUser.copy(days = updatedDays)
             postUpdatedUser(updatedUser)
         }
@@ -361,9 +388,21 @@ class HomeFragment : Fragment() {
     }
 
     private fun getCurrentUser() {
-        DatabaseManager.getUser(1L).observe(viewLifecycleOwner) { user ->
+        DatabaseManager.getUser(userId).observe(viewLifecycleOwner) { user ->
             currentUser = user
         }
+    }
+
+    private fun goToLogin() {
+        val intent = Intent(requireContext(), StartActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun getCurrentUserId(): Long {
+        val sharedPreferences: SharedPreferences =
+            requireContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val userIdString: String? = sharedPreferences.getString("userId", null)
+        return userIdString?.toLongOrNull() ?: -1L
     }
 
     private fun generateDayItems(): List<DayItem> {
@@ -375,13 +414,9 @@ class HomeFragment : Fragment() {
         for (i in 1..daysInMonth) {
             calendar.set(Calendar.DAY_OF_MONTH, i)
             val dayName = dateFormat.format(calendar.time)
-
-            // Get the day, month, and year components
             val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val month = calendar.get(Calendar.MONTH) + 1 // Month is 0-based, so add 1
+            val month = calendar.get(Calendar.MONTH) + 1
             val year = calendar.get(Calendar.YEAR)
-
-            // Generate the dateId in the format DDMMYYYY
             val dateId = "$day${month.toString().padStart(2, '0')}$year"
 
             dayItems.add(DayItem(dateId, day.toString(), dayName, month.toString()))
@@ -392,17 +427,11 @@ class HomeFragment : Fragment() {
     private fun getCurrentDayItem(): DayItem {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("E", Locale.getDefault())
-
         val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1 // Month is 0-based, so add 1
+        val currentMonth = calendar.get(Calendar.MONTH) + 1
         val currentYear = calendar.get(Calendar.YEAR)
-
         val currentDayName = dateFormat.format(calendar.time)
-
-        // Generate the dateId for the current day in the format DDMMYYYY
         val currentDateId = "$currentDay${currentMonth.toString().padStart(2, '0')}$currentYear"
-
-        // Create and return a DayItem object for the current day
         return DayItem(
             currentDateId,
             currentDay.toString(),
