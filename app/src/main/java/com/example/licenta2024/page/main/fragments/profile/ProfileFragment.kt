@@ -61,7 +61,7 @@ class ProfileFragment : Fragment() {
         val sharedPreferences =
             requireContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-        editor.putString("userId", id.toString())
+        editor.putString("userId", "-1")
         editor.apply()
         goToLogin()
     }
