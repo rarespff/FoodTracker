@@ -89,7 +89,6 @@ class HomeFragment : Fragment() {
         calendarRv = rootView.findViewById(R.id.calendar_rv)
         setUpViews(rootView)
         getCurrentUser()
-        updateCurrentDayData(getCurrentDayItem())
         getStepCount { }
         return rootView
     }
@@ -266,34 +265,27 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateCurrentDayData(dayItem: DayItem) {
-        Log.e("firstCall", dayItem.dateId)
-        DatabaseManager.getUser(1L).observe(viewLifecycleOwner) { user ->
-            if (user != null) {
-                if (user.goals != null) {
-                    currentGoals = user.goals
-                }
-                currentDay = user.days.find { it.dateId == dayItem.dateId } ?: Day(
-                    "invalid",
-                    dayItem.day,
-                    dayItem.dayName,
-                    dayItem.dayMonth,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    listOf(),
-                    listOf(),
-                    listOf(),
-                    0
-                )
-                updateViews()
-                Log.e("currentDay: ", currentDay.toString())
-            } else {
-                Log.e("homeFragmentDayUpdate", "User data is null")
-            }
+        if (currentUser.goals != null) {
+            currentGoals = currentUser.goals!!
         }
+        currentDay = currentUser.days.find { it.dateId == dayItem.dateId } ?: Day(
+            "invalid",
+            dayItem.day,
+            dayItem.dayName,
+            dayItem.dayMonth,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            listOf(),
+            listOf(),
+            listOf(),
+            0
+        )
+        updateViews()
+        Log.e("currentDay: ", currentDay.toString())
     }
 
     private fun setUpViews(rootView: View) {
@@ -348,7 +340,6 @@ class HomeFragment : Fragment() {
 
     private fun addWater(quantity: Int) {
         val currentDay = currentUser.days.find { it.dateId == getCurrentDayItem().dateId }
-        Log.e("addWaterDay:", currentDay.toString())
         if (currentDay != null) {
             val updatedWaterIntake = currentDay.waterIntake + quantity
             val updatedDay = currentDay.copy(waterIntake = updatedWaterIntake)
@@ -390,6 +381,7 @@ class HomeFragment : Fragment() {
     private fun getCurrentUser() {
         DatabaseManager.getUser(userId).observe(viewLifecycleOwner) { user ->
             currentUser = user
+            updateCurrentDayData(getCurrentDayItem())
         }
     }
 
