@@ -7,7 +7,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import com.example.licenta2024.R
@@ -27,6 +30,11 @@ class ProfileFragment : Fragment() {
     private lateinit var bmr: TextView
     private lateinit var tdee: TextView
     private lateinit var logOut: CardView
+    private lateinit var editObjectives: CardView
+    private lateinit var caloriesGoal: TextView
+    private lateinit var proteinGoal: TextView
+    private lateinit var carbsGoal: TextView
+    private lateinit var fatsGoal: TextView
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,9 +60,64 @@ class ProfileFragment : Fragment() {
         bmr = view.findViewById(R.id.bmr_value)
         tdee = view.findViewById(R.id.tdee_value)
         logOut = view.findViewById(R.id.log_out_card)
+        caloriesGoal = view.findViewById(R.id.text_calorie_value)
+        proteinGoal = view.findViewById(R.id.text_protein_value)
+        carbsGoal = view.findViewById(R.id.text_carbs_value)
+        fatsGoal = view.findViewById(R.id.text_fats_value)
+        editObjectives = view.findViewById(R.id.edit_objectives_card)
+        editObjectives.setOnClickListener { editObjectivesDialog() }
         logOut.setOnClickListener {
             logOut()
         }
+    }
+
+    private fun editObjectivesDialog() {
+        // Create a LinearLayout to hold EditTexts
+        val layout = LinearLayout(requireContext())
+        layout.orientation = LinearLayout.VERTICAL
+
+        // Create EditTexts for each goal
+        val caloriesInput = EditText(requireContext())
+        caloriesInput.hint = "Goal Calories"
+        layout.addView(caloriesInput)
+
+        val proteinInput = EditText(requireContext())
+        proteinInput.hint = "Goal Protein"
+        layout.addView(proteinInput)
+
+        val fatsInput = EditText(requireContext())
+        fatsInput.hint = "Goal Fats"
+        layout.addView(fatsInput)
+
+        val carbsInput = EditText(requireContext())
+        carbsInput.hint = "Goal Carbs"
+        layout.addView(carbsInput)
+
+        // Create AlertDialog
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Edit Objectives")
+            .setView(layout)
+            .setPositiveButton("Save") { dialog, _ ->
+                val calories = caloriesInput.text.toString()
+                val protein = proteinInput.text.toString()
+                val fats = fatsInput.text.toString()
+                val carbs = carbsInput.text.toString()
+
+                // Do something with the data, for example:
+                // Save to database or perform calculations
+                // You can replace this with your own logic
+                // For demonstration purposes, printing the values
+                println("Calories: $calories, Protein: $protein, Fats: $fats, Carbs: $carbs")
+
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+
+        dialog.show()
+
     }
 
     private fun logOut() {
