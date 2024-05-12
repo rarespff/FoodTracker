@@ -16,6 +16,6 @@ data class User(
     val activityLevel: String,
     val gender: String,
     val image: String?,
-    val goals: Goals?,
+    var goals: Goals?,
     var days: List<Day>
 )

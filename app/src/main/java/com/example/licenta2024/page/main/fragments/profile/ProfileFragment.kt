@@ -17,6 +17,9 @@ import com.example.licenta2024.R
 import com.example.licenta2024.data.DatabaseManager
 import com.example.licenta2024.data.User
 import com.example.licenta2024.page.start.StartActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
     private lateinit var currentUser: User
@@ -72,28 +75,32 @@ class ProfileFragment : Fragment() {
     }
 
     private fun editObjectivesDialog() {
-        // Create a LinearLayout to hold EditTexts
         val layout = LinearLayout(requireContext())
         layout.orientation = LinearLayout.VERTICAL
 
-        // Create EditTexts for each goal
         val caloriesInput = EditText(requireContext())
-        caloriesInput.hint = "Goal Calories"
+        caloriesInput.hint = "Calories goal"
         layout.addView(caloriesInput)
 
         val proteinInput = EditText(requireContext())
-        proteinInput.hint = "Goal Protein"
+        proteinInput.hint = "Protein goal"
         layout.addView(proteinInput)
 
         val fatsInput = EditText(requireContext())
-        fatsInput.hint = "Goal Fats"
+        fatsInput.hint = "Fats goal"
         layout.addView(fatsInput)
 
         val carbsInput = EditText(requireContext())
-        carbsInput.hint = "Goal Carbs"
+        carbsInput.hint = "Carbs goal"
         layout.addView(carbsInput)
 
-        // Create AlertDialog
+        val waterIntake = EditText(requireContext())
+        waterIntake.hint = "Water intake goal"
+        layout.addView(waterIntake)
+
+        val steps = EditText(requireContext())
+        steps.hint = "Steps goal"
+        layout.addView(steps)
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Edit Objectives")
             .setView(layout)
@@ -102,22 +109,44 @@ class ProfileFragment : Fragment() {
                 val protein = proteinInput.text.toString()
                 val fats = fatsInput.text.toString()
                 val carbs = carbsInput.text.toString()
-
-                // Do something with the data, for example:
-                // Save to database or perform calculations
-                // You can replace this with your own logic
-                // For demonstration purposes, printing the values
-                println("Calories: $calories, Protein: $protein, Fats: $fats, Carbs: $carbs")
-
+                val water = waterIntake.text.toString()
+                val step = steps.text.toString()
+                editObjectives(calories, protein, fats, carbs, water, step)
                 dialog.dismiss()
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
             }
             .create()
-
         dialog.show()
+    }
 
+    private fun editObjectives(
+        calories: String,
+        protein: String,
+        fats: String,
+        carbs: String,
+        waterIntake: String,
+        steps: String
+    ) {
+        val updatedUser = currentUser
+        val updatedGoals = currentUser.goals
+        updatedGoals.let {
+            it?.calories = calories.toInt()
+            it?.protein = protein.toInt()
+            it?.fats = fats.toInt()
+            it?.carbs = carbs.toInt()
+            it?.waterIntakeGoal = waterIntake.toInt()
+            it?.stepGoal = steps.toInt()
+        }
+        updatedUser.goals = updatedGoals
+        postUpdatedUser(updatedUser)
+    }
+
+    private fun postUpdatedUser(updatedUser: User) {
+        CoroutineScope(Dispatchers.IO).launch {
+            DatabaseManager.updateUser(updatedUser)
+        }
     }
 
     private fun logOut() {
@@ -137,6 +166,10 @@ class ProfileFragment : Fragment() {
         calorieGoal.text = currentUser.goals?.calories.toString()
         bmr.text = currentUser.goals?.bmr.toString()
         tdee.text = currentUser.goals?.tdee.toString()
+        caloriesGoal.text = currentUser.goals?.calories.toString()
+        proteinGoal.text = currentUser.goals?.protein.toString()
+        carbsGoal.text = currentUser.goals?.carbs.toString()
+        fatsGoal.text = currentUser.goals?.fats.toString()
     }
 
     private fun getCurrentUser() {
