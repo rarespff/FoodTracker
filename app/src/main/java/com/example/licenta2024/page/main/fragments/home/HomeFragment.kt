@@ -380,8 +380,10 @@ class HomeFragment : Fragment() {
 
     private fun getCurrentUser() {
         DatabaseManager.getUser(userId).observe(viewLifecycleOwner) { user ->
-            currentUser = user
-            updateCurrentDayData(getCurrentDayItem())
+            if (user != null) {
+                currentUser = user
+                updateCurrentDayData(getCurrentDayItem())
+            }
         }
     }
 
