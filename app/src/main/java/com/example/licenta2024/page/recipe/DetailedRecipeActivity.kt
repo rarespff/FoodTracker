@@ -3,6 +3,7 @@ package com.example.licenta2024.page.recipe
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
@@ -46,6 +47,7 @@ class DetailedRecipeActivity : AppCompatActivity() {
     private val carbsValue by lazy { findViewById<TextView>(R.id.carbs_value) }
     private val fatsValue by lazy { findViewById<TextView>(R.id.fats_value) }
     private val recipeCalories by lazy { findViewById<TextView>(R.id.recipe_calories) }
+    private val goToRecipeBtn by lazy { findViewById<Button>(R.id.go_to_recipe_btn) }
     private lateinit var currentRecipe: DetailedRecipe
     private lateinit var currentUser: User
     private var userId = -1L
@@ -239,6 +241,11 @@ class DetailedRecipeActivity : AppCompatActivity() {
         fatsValue.text = detailedRecipe.nutrition.nutrients[1].amount.toString()
         carbsValue.text = detailedRecipe.nutrition.nutrients[3].amount.toString()
         recipeCalories.text = detailedRecipe.nutrition.nutrients[0].amount.toString()
+        goToRecipeBtn.setOnClickListener {
+            val url = detailedRecipe.sourceUrl
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(browserIntent)
+        }
     }
 
     private fun getCurrentDayItem(): DayItem {

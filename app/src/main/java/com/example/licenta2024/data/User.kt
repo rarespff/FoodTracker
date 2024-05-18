@@ -1,5 +1,6 @@
 package com.example.licenta2024.data
 
+import android.graphics.Bitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -15,7 +16,7 @@ data class User(
     val height: Int,
     val activityLevel: String,
     val gender: String,
-    val image: String?,
+    var image: Bitmap?,
     var goals: Goals?,
     var days: List<Day>
 )

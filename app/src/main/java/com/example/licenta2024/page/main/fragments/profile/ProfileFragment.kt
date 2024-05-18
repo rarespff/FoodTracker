@@ -1,17 +1,27 @@
 package com.example.licenta2024.page.main.fragments.profile
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.fragment.app.Fragment
 import com.example.licenta2024.R
 import com.example.licenta2024.data.DatabaseManager
@@ -24,7 +34,6 @@ import kotlinx.coroutines.launch
 class ProfileFragment : Fragment() {
     private lateinit var currentUser: User
     private var userId = -1L
-    private lateinit var profileBk: View
     private lateinit var firstName: TextView
     private lateinit var lastName: TextView
     private lateinit var age: TextView
@@ -38,6 +47,8 @@ class ProfileFragment : Fragment() {
     private lateinit var proteinGoal: TextView
     private lateinit var carbsGoal: TextView
     private lateinit var fatsGoal: TextView
+    private lateinit var profilePicture: ImageView
+    private lateinit var placeHolder: ImageView
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -54,7 +65,6 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        profileBk = view.findViewById(R.id.profile_bk)
         firstName = view.findViewById(R.id.first_name)
         lastName = view.findViewById(R.id.last_name)
         age = view.findViewById(R.id.age)
@@ -69,38 +79,94 @@ class ProfileFragment : Fragment() {
         fatsGoal = view.findViewById(R.id.text_fats_value)
         editObjectives = view.findViewById(R.id.edit_objectives_card)
         editObjectives.setOnClickListener { editObjectivesDialog() }
+        profilePicture = view.findViewById(R.id.profile_bk)
+        profilePicture.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                openCamera()
+            } else {
+                requestCameraPermission()
+            }
+        }
+        placeHolder = view.findViewById(R.id.no_profile_picture)
         logOut.setOnClickListener {
             logOut()
+        }
+    }
+
+    private fun openCamera() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(takePictureIntent, 1)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            // Get the captured image
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            editProfilePicture(imageBitmap)
+            val circularDrawable = transformToCircularDrawable(imageBitmap)
+            profilePicture.setImageDrawable(circularDrawable)
+            placeHolder.visibility = View.GONE
+        }
+    }
+
+    private fun requestCameraPermission() {
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            2
+        )
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 2) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera()
+            }
         }
     }
 
     private fun editObjectivesDialog() {
         val layout = LinearLayout(requireContext())
         layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(20, 10, 5, 5)
 
-        val caloriesInput = EditText(requireContext())
-        caloriesInput.hint = "Calories goal"
-        layout.addView(caloriesInput)
+        fun createLabeledEditText(labelText: String, editTextValue: String?): EditText {
+            val label = TextView(requireContext())
+            label.text = labelText
+            layout.addView(label)
 
-        val proteinInput = EditText(requireContext())
-        proteinInput.hint = "Protein goal"
-        layout.addView(proteinInput)
+            val editText = EditText(requireContext())
+            editText.setText(editTextValue)
+            layout.addView(editText)
 
-        val fatsInput = EditText(requireContext())
-        fatsInput.hint = "Fats goal"
-        layout.addView(fatsInput)
+            return editText
+        }
 
-        val carbsInput = EditText(requireContext())
-        carbsInput.hint = "Carbs goal"
-        layout.addView(carbsInput)
+        val caloriesInput =
+            createLabeledEditText("Calories goal", currentUser.goals?.calories?.toString())
+        val proteinInput =
+            createLabeledEditText("Protein goal", currentUser.goals?.protein?.toString())
+        val fatsInput = createLabeledEditText("Fats goal", currentUser.goals?.fats?.toString())
+        val carbsInput = createLabeledEditText("Carbs goal", currentUser.goals?.carbs?.toString())
+        val waterIntake = createLabeledEditText(
+            "Water intake goal",
+            currentUser.goals?.waterIntakeGoal?.toString()
+        )
+        val stepsInput =
+            createLabeledEditText("Steps goal", currentUser.goals?.stepGoal?.toString())
 
-        val waterIntake = EditText(requireContext())
-        waterIntake.hint = "Water intake goal"
-        layout.addView(waterIntake)
-
-        val steps = EditText(requireContext())
-        steps.hint = "Steps goal"
-        layout.addView(steps)
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Edit Objectives")
             .setView(layout)
@@ -110,16 +176,18 @@ class ProfileFragment : Fragment() {
                 val fats = fatsInput.text.toString()
                 val carbs = carbsInput.text.toString()
                 val water = waterIntake.text.toString()
-                val step = steps.text.toString()
-                editObjectives(calories, protein, fats, carbs, water, step)
+                val steps = stepsInput.text.toString()
+                editObjectives(calories, protein, fats, carbs, water, steps)
                 dialog.dismiss()
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
             }
             .create()
+        dialog.window?.setBackgroundDrawableResource(R.color.light_gray)
         dialog.show()
     }
+
 
     private fun editObjectives(
         calories: String,
@@ -140,6 +208,14 @@ class ProfileFragment : Fragment() {
             it?.stepGoal = steps.toInt()
         }
         updatedUser.goals = updatedGoals
+        postUpdatedUser(updatedUser)
+    }
+
+    private fun editProfilePicture(
+        picture: Bitmap
+    ) {
+        val updatedUser = currentUser
+        updatedUser.image = picture
         postUpdatedUser(updatedUser)
     }
 
@@ -170,6 +246,11 @@ class ProfileFragment : Fragment() {
         proteinGoal.text = currentUser.goals?.protein.toString()
         carbsGoal.text = currentUser.goals?.carbs.toString()
         fatsGoal.text = currentUser.goals?.fats.toString()
+        currentUser.image?.let {
+            val circularDrawable = transformToCircularDrawable(it)
+            profilePicture.setImageDrawable(circularDrawable)
+            placeHolder.visibility = View.GONE
+        }
     }
 
     private fun getCurrentUser() {
@@ -182,6 +263,12 @@ class ProfileFragment : Fragment() {
     private fun goToLogin() {
         val intent = Intent(requireContext(), StartActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun transformToCircularDrawable(bitmap: Bitmap): Drawable {
+        val circularBitmapDrawable = RoundedBitmapDrawableFactory.create(resources, bitmap)
+        circularBitmapDrawable.isCircular = true
+        return circularBitmapDrawable
     }
 
     private fun getCurrentUserId(): Long {

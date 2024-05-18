@@ -270,13 +270,11 @@
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/separator3">
 
-            <TextView
+            <Button
                 android:layout_width="wrap_content"
+                android:id="@+id/go_to_recipe_btn"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="Ingredients list ..."
-                android:textColor="@color/white" />
+                android:text="GO TO RECIPE WEBSITE" />
 
         </LinearLayout>
 

@@ -13,6 +13,8 @@ data class DetailedRecipe(
     val readyInMinutes: Int?,
     @SerializedName("servings")
     val servings: Int?,
+    @SerializedName("sourceUrl")
+    val sourceUrl: String?,
     @SerializedName("nutrition")
     val nutrition: Nutrition
 )
