@@ -74,6 +74,13 @@ class JournalDayAdapter(
             "thu" -> "Thursday"
             "fri" -> "Friday"
             "sat" -> "Saturday"
+            "dum." -> "Sunday"
+            "lun." -> "Monday"
+            "mar." -> "Tuesday"
+            "mie." -> "Wednesday"
+            "joi." -> "Thursday"
+            "vin." -> "Friday"
+            "sam." -> "Saturday"
             else -> throw IllegalArgumentException("Invalid day name: $shortDayName")
         }
     }
