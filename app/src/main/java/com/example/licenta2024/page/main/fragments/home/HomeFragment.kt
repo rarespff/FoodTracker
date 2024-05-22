@@ -1,12 +1,15 @@
 package com.example.licenta2024.page.main.fragments.home
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,6 +20,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -76,6 +81,7 @@ class HomeFragment : Fragment() {
     private lateinit var currentUser: User
     private var userId = -1L
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -89,11 +95,44 @@ class HomeFragment : Fragment() {
         calendarRv = rootView.findViewById(R.id.calendar_rv)
         setUpViews(rootView)
         getCurrentUser()
-        getStepCount { }
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            getStepCount()
+        } else {
+            requestActivityPermission()
+        }
         return rootView
     }
 
-    private fun getStepCount(callback: (Int) -> Unit) {
+    @Deprecated("Deprecated in Java")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 2) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getStepCount()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun requestActivityPermission() {
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ),
+            2
+        )
+    }
+
+    private fun getStepCount() {
         val sensorManager: SensorManager =
             requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
@@ -105,7 +144,6 @@ class HomeFragment : Fragment() {
                 // Extract step count from the sensor event
                 val steps = event.values[0].toInt()
                 Log.e("STEP SENSOR", steps.toString())
-                callback(steps)
                 // Unregister listener after receiving the first step count update
                 sensorManager.unregisterListener(this)
             }
