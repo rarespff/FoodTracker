@@ -13,16 +13,47 @@
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/radius_bk"
+        android:focusable="false"
         android:textColor="@color/white"
         app:closeIcon="@drawable/close"
         app:iconifiedByDefault="false"
-        android:focusable="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:queryHint="Search recipes..."
         app:searchHintIcon="@null"
         app:searchIcon="@drawable/search" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_buttons"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="10dp"
+        android:weightSum="2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_view">
+
+        <Button
+            android:id="@+id/recipes_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="10dp"
+            android:backgroundTint="@color/light_gray"
+            android:text="Recipes"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/foods_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Foods"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recipes_rv"
@@ -33,5 +64,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_view" />
+        app:layout_constraintTop_toBottomOf="@id/search_buttons" />
 </androidx.constraintlayout.widget.ConstraintLayout>
