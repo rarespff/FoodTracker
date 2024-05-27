@@ -132,6 +132,40 @@ class HomeFragment : Fragment() {
         )
     }
 
+    private fun saveSteps(steps: Int) {
+        val currentDay = currentUser.days.find { it.dateId == getCurrentDayItem().dateId }
+        if (currentDay != null) {
+            val updatedDay = currentDay.copy(steps = steps)
+            val updatedDays =
+                currentUser.days.map { if (it.dateId == updatedDay.dateId) updatedDay else it }
+            val updatedUser = currentUser.copy(days = updatedDays)
+            postUpdatedUser(updatedUser)
+        } else {
+            val today = getCurrentDayItem()
+            val newDay = Day(
+                today.dateId,
+                today.day,
+                today.dayName,
+                today.dayMonth,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                listOf(),
+                listOf(),
+                listOf(),
+                steps
+            )
+            val updatedDays = currentUser.days as MutableList
+            updatedDays.add(newDay)
+            val updatedUser = currentUser.copy(days = updatedDays)
+            postUpdatedUser(updatedUser)
+        }
+    }
+
+
     private fun getStepCount() {
         val sensorManager: SensorManager =
             requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -144,6 +178,9 @@ class HomeFragment : Fragment() {
                 // Extract step count from the sensor event
                 val steps = event.values[0].toInt()
                 Log.e("STEP SENSOR", steps.toString())
+                if (steps - currentDay.steps > 100) {
+                    saveSteps(steps)
+                }
                 // Unregister listener after receiving the first step count update
                 sensorManager.unregisterListener(this)
             }
