@@ -173,7 +173,6 @@ class DetailedRecipeActivity : AppCompatActivity() {
 
     private fun getNewFoodObject(quantity: Double): Food {
         val decimalFormat = DecimalFormat("#.#")
-        Log.e("rares", "quantity: $quantity")
         val protein = currentRecipe.nutrition.nutrients[8].amount?.let {
             decimalFormat.format(it * quantity).toDouble().toInt()
         } ?: 0
