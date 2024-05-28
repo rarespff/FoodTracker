@@ -1,6 +1,7 @@
 package com.example.licenta2024.di
 
 import com.example.licenta2024.data.AuthInterceptor
+import com.example.licenta2024.data.FoodApiClient
 import com.example.licenta2024.data.RecipeRepository
 import com.example.licenta2024.data.SpoonacularApi
 import com.example.licenta2024.util.Constants
@@ -61,6 +62,12 @@ object AppModule {
     @Singleton
     fun provideApiService(retrofit: Retrofit): SpoonacularApi =
         retrofit.create(SpoonacularApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideFoodApiClient(): FoodApiClient {
+        return FoodApiClient()
+    }
 
     @Singleton
     @Provides

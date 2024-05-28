@@ -7,10 +7,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.licenta2024.R
-import com.example.licenta2024.data.SearchedFood
+import com.example.licenta2024.data.SearchedFoodResult
 
 class FoodAdapter(
-    private val foods: MutableList<SearchedFood>,
+    private val foods: MutableList<SearchedFoodResult>,
     private val buttonClickHandler: (Int) -> Unit
 ) :
     RecyclerView.Adapter<FoodAdapter.ViewHolder>() {
@@ -34,11 +34,6 @@ class FoodAdapter(
         return foods.size
     }
 
-    fun updateFoods(newFoods: List<SearchedFood>) {
-        foods.clear()
-        foods.addAll(newFoods)
-        notifyDataSetChanged()
-    }
 
     inner class ViewHolder(itemView: View, private val onClick: (Int) -> Unit) :
         RecyclerView.ViewHolder(itemView) {

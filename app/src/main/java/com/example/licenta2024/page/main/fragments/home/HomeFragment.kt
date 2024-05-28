@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.licenta2024.R
 import com.example.licenta2024.data.DatabaseManager
 import com.example.licenta2024.data.Day
+import com.example.licenta2024.data.FoodApiClient
 import com.example.licenta2024.data.Goals
 import com.example.licenta2024.data.User
 import com.example.licenta2024.page.main.MainActivity

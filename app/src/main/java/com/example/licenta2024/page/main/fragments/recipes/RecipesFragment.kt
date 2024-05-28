@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.licenta2024.R
 import com.example.licenta2024.data.Recipe
+import com.example.licenta2024.data.SearchedFoodResult
 import com.example.licenta2024.page.main.MainViewModel
 import com.example.licenta2024.page.recipe.DetailedRecipeActivity
 
@@ -21,9 +22,12 @@ class RecipesFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var gridAdapter: RecipesAdapter
+    private lateinit var foodAdapter: FoodAdapter
     private lateinit var searchView: SearchView
     private lateinit var recipesSearch: Button
     private lateinit var foodsSearch: Button
+    private var foodList: MutableList<SearchedFoodResult> = mutableListOf()
+    private var searchRecipes = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +41,7 @@ class RecipesFragment : Fragment() {
         foodsSearch = view.findViewById(R.id.foods_search)
         var currentRecipes = mutableListOf<Recipe>()
         recipesSearch.setOnClickListener {
+            searchRecipes = true
             searchView.queryHint = "Search recipes..."
             recyclerView.adapter = RecipesAdapter(currentRecipes) { recipe ->
                 startActivity(
@@ -52,7 +57,8 @@ class RecipesFragment : Fragment() {
                 ColorStateList.valueOf(resources.getColor(R.color.gray))
         }
         foodsSearch.setOnClickListener {
-            recyclerView.adapter = FoodAdapter(mutableListOf()) {}
+            searchRecipes = false
+            recyclerView.adapter = FoodAdapter(foodList) {}
             foodsSearch.backgroundTintList =
                 ColorStateList.valueOf(resources.getColor(R.color.light_gray))
             recipesSearch.backgroundTintList =
@@ -69,17 +75,35 @@ class RecipesFragment : Fragment() {
                 ).putExtra("RECIPE", recipe.id)
             )
         }
+        foodAdapter = FoodAdapter(foodList) {}
 
         recyclerView.adapter = gridAdapter
         viewModel.recipeListLiveData.observe(viewLifecycleOwner) { newRecipes ->
             if (newRecipes != null) {
                 currentRecipes = newRecipes as MutableList<Recipe>
-                gridAdapter.updateRecipes(newRecipes)
+                recyclerView.adapter = RecipesAdapter(newRecipes) { recipe ->
+                    startActivity(
+                        Intent(
+                            requireContext(),
+                            DetailedRecipeActivity::class.java
+                        ).putExtra("RECIPE", recipe.id)
+                    )
+                }
+            }
+        }
+        viewModel.foodListLiveData.observe(viewLifecycleOwner) { newFoods ->
+            if (newFoods != null) {
+                foodList = newFoods as MutableList<SearchedFoodResult>
+                recyclerView.adapter = FoodAdapter(foodList) {}
             }
         }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
-                viewModel.getRecipesByName(query)
+                if (searchRecipes) {
+                    viewModel.getRecipesByName(query)
+                } else {
+                    viewModel.searchFoodByName(query)
+                }
                 searchView.setQuery("", false)
                 return true
             }

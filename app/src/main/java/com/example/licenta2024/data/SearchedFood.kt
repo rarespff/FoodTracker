@@ -1,10 +1,9 @@
 package com.example.licenta2024.data
 
+import com.squareup.moshi.Json
+
 data class SearchedFood(
-    val id: Int?,
-    val title: String?,
-    val calories: String?,
-    val protein: String?,
-    val fats: String?,
-    val carbs: String?
+    @Json(name = "fdcId") val id: Int?,
+    @Json(name = "description") val title: String?,
+    @Json(name = "foodNutrients") val nutrients: List<FoodNutrient>?
 )
