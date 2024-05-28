@@ -28,7 +28,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.licenta2024.R
 import com.example.licenta2024.data.DatabaseManager
 import com.example.licenta2024.data.Day
-import com.example.licenta2024.data.FoodApiClient
 import com.example.licenta2024.data.Goals
 import com.example.licenta2024.data.User
 import com.example.licenta2024.page.main.MainActivity
@@ -136,7 +135,10 @@ class HomeFragment : Fragment() {
     private fun saveSteps(steps: Int) {
         val currentDay = currentUser.days.find { it.dateId == getCurrentDayItem().dateId }
         if (currentDay != null) {
-            val updatedDay = currentDay.copy(steps = steps)
+            val updatedDay = currentDay.copy(
+                steps = steps,
+                totalBurnedCalories = calculateCaloriesBurned(steps, currentUser.weight)
+            )
             val updatedDays =
                 currentUser.days.map { if (it.dateId == updatedDay.dateId) updatedDay else it }
             val updatedUser = currentUser.copy(days = updatedDays)
@@ -149,7 +151,7 @@ class HomeFragment : Fragment() {
                 today.dayName,
                 today.dayMonth,
                 0,
-                0,
+                calculateCaloriesBurned(steps, currentUser.weight),
                 0,
                 0,
                 0,
@@ -166,6 +168,15 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun calculateCaloriesBurned(steps: Int, weightKg: Int): Int {
+        val caloriesPerStep = when {
+            weightKg <= 50 -> 0.035
+            weightKg in 51..70 -> 0.05
+            weightKg in 71..90 -> 0.06
+            else -> 0.07
+        }
+        return steps * caloriesPerStep.toInt()
+    }
 
     private fun getStepCount() {
         val sensorManager: SensorManager =
@@ -267,7 +278,7 @@ class HomeFragment : Fragment() {
         }
         caloriesGoal.text = currentGoals.calories.toString()
         consumedCalories.text = currentDay.totalConsumedCalories.toString()
-        burnedCalories.text = (currentDay.steps * 0.45).toString()
+        burnedCalories.text = currentDay.totalBurnedCalories.toString()
         caloriesProgressBar.max = currentGoals.calories
         var currentCalories =
             currentDay.totalConsumedCalories - currentDay.totalBurnedCalories
