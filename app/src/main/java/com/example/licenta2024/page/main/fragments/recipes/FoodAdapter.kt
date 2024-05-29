@@ -18,16 +18,19 @@ class FoodAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.food_rv_item, parent, false)
-        return ViewHolder(view, buttonClickHandler)
+        return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val food = foods[position]
         holder.titleTextView.text = food.title
-        holder.caloriesTextView.text = food.calories
-        holder.proteinView.text = food.protein
-        holder.fatsView.text = food.fats
-        holder.carbsView.text = food.carbs
+        holder.caloriesTextView.text = food.calories.toString()
+        holder.proteinView.text = food.protein.toString()
+        holder.fatsView.text = food.fats.toString()
+        holder.carbsView.text = food.carbs.toString()
+        holder.button.setOnClickListener {
+            buttonClickHandler(position)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -35,7 +38,7 @@ class FoodAdapter(
     }
 
 
-    inner class ViewHolder(itemView: View, private val onClick: (Int) -> Unit) :
+    inner class ViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
         val caloriesTextView: TextView = itemView.findViewById(R.id.caloriesTextView)
@@ -43,12 +46,5 @@ class FoodAdapter(
         val fatsView: TextView = itemView.findViewById(R.id.fatsTextView)
         val carbsView: TextView = itemView.findViewById(R.id.carbsTextView)
         val button: Button = itemView.findViewById(R.id.add_food)
-
-        init {
-            button.setOnClickListener {
-                // Pass the adapter position to the click handler
-                onClick(adapterPosition)
-            }
-        }
     }
 }

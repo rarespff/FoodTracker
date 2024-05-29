@@ -5,8 +5,8 @@ import com.squareup.moshi.Json
 data class SearchedFoodResult(
     val id: Int?,
     val title: String?,
-    val calories: String?,
-    val protein: String?,
-    val fats: String?,
-    val carbs: String?
+    val calories: Int?,
+    val protein: Int?,
+    val fats: Int?,
+    val carbs: Int?
 )

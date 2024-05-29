@@ -29,16 +29,17 @@ class FoodApiClient {
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
                 response.body?.let { responseBody ->
-                    val foodSearchResponse = foodSearchResponseAdapter.fromJson(responseBody.string())
+                    val foodSearchResponse =
+                        foodSearchResponseAdapter.fromJson(responseBody.string())
                     foodSearchResponse?.foods?.map { food ->
                         val nutrients = food.nutrients?.associateBy { it.name }
                         SearchedFoodResult(
                             id = food.id,
                             title = food.title,
-                            calories = nutrients?.get("Energy")?.value?.toString(),
-                            protein = nutrients?.get("Protein")?.value?.toString(),
-                            fats = nutrients?.get("Total lipid (fat)")?.value?.toString(),
-                            carbs = nutrients?.get("Carbohydrate, by difference")?.value?.toString()
+                            calories = nutrients?.get("Energy")?.value?.toInt(),
+                            protein = nutrients?.get("Protein")?.value?.toInt(),
+                            fats = nutrients?.get("Total lipid (fat)")?.value?.toInt(),
+                            carbs = nutrients?.get("Carbohydrate, by difference")?.value?.toInt()
                         )
                     }
                 }
