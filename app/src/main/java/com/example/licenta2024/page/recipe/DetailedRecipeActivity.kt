@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -162,7 +161,7 @@ class DetailedRecipeActivity : AppCompatActivity() {
         }
         user.days = currentUserDays
         CoroutineScope(Dispatchers.IO).launch {
-            DatabaseManager.updateUser(user)
+            DatabaseManager.updateUser(user) {}
         }
         val intent = Intent(
             this,

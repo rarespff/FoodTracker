@@ -178,7 +178,7 @@ class RecipesFragment : Fragment() {
         }
         user.days = currentUserDays
         CoroutineScope(Dispatchers.IO).launch {
-            DatabaseManager.updateUser(user)
+            DatabaseManager.updateUser(user) { }
         }
         val intent = Intent(
             requireContext(),

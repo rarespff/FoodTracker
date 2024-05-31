@@ -17,6 +17,9 @@ import androidx.fragment.app.Fragment
 import com.example.licenta2024.R
 import com.example.licenta2024.data.DatabaseManager
 import com.example.licenta2024.page.main.MainActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
 

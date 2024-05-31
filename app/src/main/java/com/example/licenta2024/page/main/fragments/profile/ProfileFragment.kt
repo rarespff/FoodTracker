@@ -221,7 +221,7 @@ class ProfileFragment : Fragment() {
 
     private fun postUpdatedUser(updatedUser: User) {
         CoroutineScope(Dispatchers.IO).launch {
-            DatabaseManager.updateUser(updatedUser)
+            DatabaseManager.updateUser(updatedUser) { getCurrentUser()  }
         }
     }
 
