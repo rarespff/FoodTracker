@@ -16,7 +16,7 @@ data class User(
     val height: Int = 0,
     val activityLevel: String = "",
     val gender: String = "",
-    var image: Bitmap? = null,
+    var image: String? = "",
     var goals: Goals? = null,
     var days: List<Day> = emptyList()
 ) {
@@ -32,7 +32,7 @@ data class User(
         height = 0,
         activityLevel = "",
         gender = "",
-        image = null,
+        image = "",
         goals = null,
         days = emptyList()
     )

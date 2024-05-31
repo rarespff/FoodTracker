@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,13 +24,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.licenta2024.R
 import com.example.licenta2024.data.DatabaseManager
 import com.example.licenta2024.data.User
 import com.example.licenta2024.page.start.StartActivity
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 
 class ProfileFragment : Fragment() {
     private lateinit var currentUser: User
@@ -211,17 +215,36 @@ class ProfileFragment : Fragment() {
         postUpdatedUser(updatedUser)
     }
 
-    private fun editProfilePicture(
-        picture: Bitmap
-    ) {
-        val updatedUser = currentUser
-        updatedUser.image = picture
-        postUpdatedUser(updatedUser)
+    private fun editProfilePicture(picture: Bitmap) {
+        val baos = ByteArrayOutputStream()
+        picture.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val imageData = baos.toByteArray()
+
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("images/${currentUser.userId}.jpg")
+        Log.e("rares","DA: $imageRef")
+
+        val uploadTask = imageRef.putBytes(imageData)
+        uploadTask.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                imageRef.downloadUrl.addOnSuccessListener { uri ->
+                    val updatedUser = currentUser
+                    updatedUser.image = uri.toString()
+                    postUpdatedUser(updatedUser)
+                }.addOnFailureListener { exception ->
+                    Log.e("editProfilePicture", "Error getting download URL: ${exception.message}")
+                }
+            } else {
+                Log.e("editProfilePicture", "Upload task failed: ${task.exception?.message}")
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("editProfilePicture", "Upload task failed: ${exception.message}")
+        }
     }
 
     private fun postUpdatedUser(updatedUser: User) {
         CoroutineScope(Dispatchers.IO).launch {
-            DatabaseManager.updateUser(updatedUser) { getCurrentUser()  }
+            DatabaseManager.updateUser(updatedUser) { getCurrentUser() }
         }
     }
 
@@ -246,9 +269,13 @@ class ProfileFragment : Fragment() {
         proteinGoal.text = currentUser.goals?.protein.toString()
         carbsGoal.text = currentUser.goals?.carbs.toString()
         fatsGoal.text = currentUser.goals?.fats.toString()
-        currentUser.image?.let {
-            val circularDrawable = transformToCircularDrawable(it)
-            profilePicture.setImageDrawable(circularDrawable)
+        currentUser.image?.let { imageUrl ->
+            Glide.with(this)
+                .load(imageUrl)
+                .placeholder(R.drawable.profile_placeholder) // Placeholder image while loading
+                .error(R.drawable.profile_placeholder) // Image to display if loading fails
+                .circleCrop() // Crop the image into a circular shape
+                .into(profilePicture)
             placeHolder.visibility = View.GONE
         }
     }
