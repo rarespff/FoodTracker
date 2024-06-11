@@ -135,14 +135,16 @@ class HomeFragment : Fragment() {
     private fun saveSteps(steps: Int) {
         val currentDay = currentUser.days.find { it.dateId == getCurrentDayItem().dateId }
         if (currentDay != null) {
-            val updatedDay = currentDay.copy(
-                steps = steps,
-                totalBurnedCalories = calculateCaloriesBurned(steps, currentUser.weight)
-            )
-            val updatedDays =
-                currentUser.days.map { if (it.dateId == updatedDay.dateId) updatedDay else it }
-            val updatedUser = currentUser.copy(days = updatedDays)
-            postUpdatedUser(updatedUser)
+            if (steps - currentDay.steps > 100) {
+                val updatedDay = currentDay.copy(
+                    steps = steps,
+                    totalBurnedCalories = calculateCaloriesBurned(steps, currentUser.weight)
+                )
+                val updatedDays =
+                    currentUser.days.map { if (it.dateId == updatedDay.dateId) updatedDay else it }
+                val updatedUser = currentUser.copy(days = updatedDays)
+                postUpdatedUser(updatedUser)
+            }
         } else {
             val today = getCurrentDayItem()
             val newDay = Day(
@@ -190,9 +192,7 @@ class HomeFragment : Fragment() {
                 // Extract step count from the sensor event
                 val steps = event.values[0].toInt()
                 Log.e("STEP SENSOR", steps.toString())
-                if (steps - currentDay.steps > 100) {
-                    saveSteps(steps)
-                }
+                saveSteps(steps)
                 // Unregister listener after receiving the first step count update
                 sensorManager.unregisterListener(this)
             }
@@ -461,7 +461,7 @@ class HomeFragment : Fragment() {
 
     private fun postUpdatedUser(updatedUser: User) {
         CoroutineScope(Dispatchers.IO).launch {
-            DatabaseManager.updateUser(updatedUser) { getCurrentUser()  }
+            DatabaseManager.updateUser(updatedUser) { getCurrentUser() }
         }
     }
 
