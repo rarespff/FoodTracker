@@ -109,14 +109,25 @@ class SignupFragment : Fragment() {
                 goals = goals,
                 days = listOf()
             )
-            Toast.makeText(
-                requireContext(),
-                "Account created, you can log in now!",
-                Toast.LENGTH_SHORT
-            ).show()
-            requireActivity().supportFragmentManager.popBackStack()
-            CoroutineScope(Dispatchers.IO).launch {
-                DatabaseManager.addUser(user)
+
+            DatabaseManager.getUserByEmail(email).observe(viewLifecycleOwner) { foundUser ->
+                if (foundUser != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Email is already used!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Account created, you can log in now!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    requireActivity().supportFragmentManager.popBackStack()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        DatabaseManager.addUser(user)
+                    }
+                }
             }
         }
 

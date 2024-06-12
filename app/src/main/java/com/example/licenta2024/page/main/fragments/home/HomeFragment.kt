@@ -133,40 +133,42 @@ class HomeFragment : Fragment() {
     }
 
     private fun saveSteps(steps: Int) {
-        val currentDay = currentUser.days.find { it.dateId == getCurrentDayItem().dateId }
-        if (currentDay != null) {
-            if (steps - currentDay.steps > 100) {
-                val updatedDay = currentDay.copy(
-                    steps = steps,
-                    totalBurnedCalories = calculateCaloriesBurned(steps, currentUser.weight)
+        if (::currentUser.isInitialized) {
+            val currentDay = currentUser.days.find { it.dateId == getCurrentDayItem().dateId }
+            if (currentDay != null) {
+                if (steps - currentDay.steps > 100) {
+                    val updatedDay = currentDay.copy(
+                        steps = steps,
+                        totalBurnedCalories = calculateCaloriesBurned(steps, currentUser.weight)
+                    )
+                    val updatedDays =
+                        currentUser.days.map { if (it.dateId == updatedDay.dateId) updatedDay else it }
+                    val updatedUser = currentUser.copy(days = updatedDays)
+                    postUpdatedUser(updatedUser)
+                }
+            } else {
+                val today = getCurrentDayItem()
+                val newDay = Day(
+                    today.dateId,
+                    today.day,
+                    today.dayName,
+                    today.dayMonth,
+                    0,
+                    calculateCaloriesBurned(steps, currentUser.weight),
+                    0,
+                    0,
+                    0,
+                    0,
+                    listOf(),
+                    listOf(),
+                    listOf(),
+                    steps
                 )
-                val updatedDays =
-                    currentUser.days.map { if (it.dateId == updatedDay.dateId) updatedDay else it }
+                val updatedDays = currentUser.days as MutableList
+                updatedDays.add(newDay)
                 val updatedUser = currentUser.copy(days = updatedDays)
                 postUpdatedUser(updatedUser)
             }
-        } else {
-            val today = getCurrentDayItem()
-            val newDay = Day(
-                today.dateId,
-                today.day,
-                today.dayName,
-                today.dayMonth,
-                0,
-                calculateCaloriesBurned(steps, currentUser.weight),
-                0,
-                0,
-                0,
-                0,
-                listOf(),
-                listOf(),
-                listOf(),
-                steps
-            )
-            val updatedDays = currentUser.days as MutableList
-            updatedDays.add(newDay)
-            val updatedUser = currentUser.copy(days = updatedDays)
-            postUpdatedUser(updatedUser)
         }
     }
 
