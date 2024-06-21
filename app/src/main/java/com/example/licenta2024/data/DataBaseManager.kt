@@ -80,10 +80,8 @@ object DatabaseManager {
         userCollection.document(user.userId.toString())
             .set(user)
             .addOnSuccessListener {
-                Log.e("rares", "user added to firestore")
             }
             .addOnFailureListener { e ->
-                Log.e("rares", "failed: ${e.message}")
             }
     }
 
@@ -92,10 +90,8 @@ object DatabaseManager {
             .set(user)
             .addOnSuccessListener {
                 updateProfileData()
-                Log.e("rares", "user added to firestore")
             }
             .addOnFailureListener { e ->
-                Log.e("rares", "failed: ${e.message}")
             }
     }
 }

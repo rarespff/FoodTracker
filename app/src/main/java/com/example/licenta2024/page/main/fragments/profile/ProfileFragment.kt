@@ -222,7 +222,6 @@ class ProfileFragment : Fragment() {
 
         val storageRef = FirebaseStorage.getInstance().reference
         val imageRef = storageRef.child("images/${currentUser.userId}.jpg")
-        Log.e("rares","DA: $imageRef")
 
         val uploadTask = imageRef.putBytes(imageData)
         uploadTask.addOnCompleteListener { task ->
